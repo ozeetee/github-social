@@ -23,12 +23,19 @@ public interface GithubApi {
     Observable<AuthResponse> authorizations(@Body AuthDto authDto);
 
 
-    @GET("/users/following")
+    @GET("/user/following")
     Observable<List<GithubUser>> meFollowing(@Header("Authorization") String token);
+
+    @GET("/user/followers")
+    Observable<List<GithubUser>> meFollowers(@Header("Authorization") String token);
 
 
     @GET("/users/{username}/following")
     Observable<List<GithubUser>> following(@Path("username") String username);
+
+
+    @GET("/users/{username}/followers")
+    Observable<List<GithubUser>> followers(@Path("username") String username);
 
 
     @GET("/users/{username}")

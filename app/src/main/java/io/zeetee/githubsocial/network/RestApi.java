@@ -48,4 +48,14 @@ public class RestApi {
     }
 
 
+    public static Observable<List<GithubUser>> following(String userName){
+        return getClient().following(userName);
+    }
+
+    public static Observable<List<GithubUser>> followers(String userName){
+        return getClient().followers(userName);
+    }
+
+
+
 }

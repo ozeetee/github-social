@@ -9,7 +9,7 @@ import com.facebook.drawee.view.SimpleDraweeView;
 
 import io.zeetee.githubsocial.R;
 import io.zeetee.githubsocial.models.GithubUser;
-import io.zeetee.githubsocial.utils.IUserActions;
+import io.zeetee.githubsocial.utils.IActions;
 
 /**
  * By GT.
@@ -19,14 +19,12 @@ public class UserListViewHolder extends RecyclerView.ViewHolder {
 
     private final SimpleDraweeView mUserImage;
     private final TextView mUserName;
-    private final ImageView mUserStar;
 
 
-    public UserListViewHolder(View itemView, final IUserActions iUserActions) {
+    public UserListViewHolder(View itemView, final IActions iUserActions) {
         super(itemView);
         mUserImage = (SimpleDraweeView) itemView.findViewById(R.id.user_image);
         mUserName = (TextView) itemView.findViewById(R.id.user_name);
-        mUserStar = (ImageView) itemView.findViewById(R.id.user_star);
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

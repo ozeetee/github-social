@@ -10,7 +10,7 @@ import java.util.List;
 
 import io.zeetee.githubsocial.R;
 import io.zeetee.githubsocial.models.GithubUser;
-import io.zeetee.githubsocial.utils.IUserActions;
+import io.zeetee.githubsocial.utils.IActions;
 import io.zeetee.githubsocial.viewholders.UserViewHolder;
 
 /**
@@ -19,16 +19,16 @@ import io.zeetee.githubsocial.viewholders.UserViewHolder;
 
 public class UsersAdapter extends RecyclerView.Adapter<UserViewHolder>{
 
-    private final IUserActions iUserActions;
+    private final IActions iUserActions;
     private List<GithubUser> users = new ArrayList<>();
 
-    public UsersAdapter(IUserActions iUserActions) {
+    public UsersAdapter(IActions iUserActions) {
         this.iUserActions = iUserActions;
     }
 
     @Override
     public UserViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_user_card,parent,false);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_user,parent,false);
         return new UserViewHolder(v, iUserActions);
     }
 

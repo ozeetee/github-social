@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_marginTop="@dimen/activity_vertical_margin"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <LinearLayout
+        android:orientation="vertical"
+        android:clickable="true"
+        android:background="?attr/selectableItemBackground"
+        android:layout_width="match_parent"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:layout_height="88dp">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:gravity="start"
+            android:maxLines="1"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:text="ASDfasdfasdfasdfasd/fsadfasdfasdfasdfsafsd" />
+
+        <TextView
+            android:id="@+id/description"
+            style="@style/TextAppearance.AppCompat.Body1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="asdfasdfa" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                style="@style/TextAppearance.AppCompat.Small"
+                android:id="@+id/repo_language"
+                android:drawableLeft="@android:drawable/sym_call_incoming"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+                style="@style/TextAppearance.AppCompat.Small"
+                android:layout_marginLeft="16dp"
+                android:id="@+id/repo_stars"
+                android:drawableLeft="@android:drawable/sym_call_incoming"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+                style="@style/TextAppearance.AppCompat.Small"
+                android:layout_marginLeft="16dp"
+                android:id="@+id/repo_forks"
+                android:drawableLeft="@android:drawable/sym_call_incoming"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+                style="@style/TextAppearance.AppCompat.Small"
+                android:layout_marginLeft="16dp"
+                android:id="@+id/repo_last_updated"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <ImageButton
+            android:src="@drawable/ic_star_border"
+            android:layout_gravity="start"
+            android:text="Follow"
+            android:id="@+id/btn_star"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+
+    </LinearLayout>
+
+</android.support.v7.widget.CardView>

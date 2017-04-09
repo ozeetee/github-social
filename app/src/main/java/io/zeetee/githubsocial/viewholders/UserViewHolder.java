@@ -8,7 +8,7 @@ import com.facebook.drawee.view.SimpleDraweeView;
 
 import io.zeetee.githubsocial.R;
 import io.zeetee.githubsocial.models.GithubUser;
-import io.zeetee.githubsocial.utils.IUserActions;
+import io.zeetee.githubsocial.utils.IActions;
 
 /**
  * By GT.
@@ -23,7 +23,7 @@ public class UserViewHolder extends RecyclerView.ViewHolder {
     private final View mUserContainer;
 
 
-    public UserViewHolder(View v, final IUserActions iUserActions) {
+    public UserViewHolder(View v, final IActions iUserActions) {
         super(v);
         mName = (TextView) v.findViewById(R.id.tv_name);
         mStats = (TextView) v.findViewById(R.id.tv_stats);

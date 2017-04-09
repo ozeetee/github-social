@@ -10,7 +10,7 @@ import java.util.List;
 
 import io.zeetee.githubsocial.R;
 import io.zeetee.githubsocial.models.GithubUser;
-import io.zeetee.githubsocial.utils.IUserActions;
+import io.zeetee.githubsocial.utils.IActions;
 import io.zeetee.githubsocial.viewholders.UserListViewHolder;
 
 /**
@@ -20,9 +20,9 @@ import io.zeetee.githubsocial.viewholders.UserListViewHolder;
 public class UserListAdapter extends RecyclerView.Adapter<UserListViewHolder> {
 
     private List<GithubUser> users = new ArrayList<>(1);
-    private IUserActions iUserActions;
+    private IActions iUserActions;
 
-    public UserListAdapter(IUserActions iUserActions) {
+    public UserListAdapter(IActions iUserActions) {
         this.iUserActions = iUserActions;
     }
 

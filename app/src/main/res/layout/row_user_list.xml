@@ -3,10 +3,11 @@
     xmlns:fresco="http://schemas.android.com/apk/res-auto"
     android:clickable="true"
     android:background="?attr/selectableItemBackground"
+    android:id="@+id/user_container"
     android:layout_width="match_parent"
     android:paddingLeft="16dp"
     android:paddingRight="16dp"
-    android:layout_height="48dp">
+    android:layout_height="60dp">
 
     <com.facebook.drawee.view.SimpleDraweeView
         android:layout_centerVertical="true"
@@ -29,12 +30,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <ImageView
-        android:id="@+id/user_star"
-        android:layout_centerVertical="true"
+    <Button
+        style="@style/AppTheme.ActionButton"
+        android:text="Follow"
         android:layout_alignParentRight="true"
-        android:src="@drawable/ic_star_border"
+        android:layout_centerVertical="true"
+        android:id="@+id/btn_follow"
+        android:layout_gravity="right"
+        android:theme="@style/FollowButtonTheme"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="38dp"/>
 
 </RelativeLayout>

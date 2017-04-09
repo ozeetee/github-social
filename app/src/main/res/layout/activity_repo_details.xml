@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context="io.zeetee.githubsocial.activities.ProfileActivity">
+
+
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/AppTheme.PopupOverlay">
+
+            <!-- Can't change theme programatically so putting in two buttons-->
+            <Button
+                style="@style/AppTheme.ActionButton"
+                android:text="Follow"
+                android:visibility="gone"
+                android:id="@+id/btn_follow"
+                android:layout_gravity="right"
+                android:layout_marginRight="16dp"
+                android:theme="@style/FollowButtonTheme"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"/>
+
+            <Button
+                style="@style/AppTheme.ActionButton"
+                android:text="Following"
+                android:id="@+id/btn_unfollow"
+                android:layout_gravity="right"
+                android:layout_marginRight="16dp"
+                android:theme="@style/UnFollowButtonTheme"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"/>
+
+        </android.support.v7.widget.Toolbar>
+
+    </android.support.design.widget.AppBarLayout>
+
+    <include layout="@layout/content_repo_details" />
+
+</android.support.design.widget.CoordinatorLayout>

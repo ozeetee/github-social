@@ -108,4 +108,5 @@
         "when a user tries to pick up one of cards.\n\n"
     </string>
     <string name="title_activity_user_list">UserListActivity</string>
+    <string name="title_activity_repo_list">RepoListActivity</string>
 </resources>

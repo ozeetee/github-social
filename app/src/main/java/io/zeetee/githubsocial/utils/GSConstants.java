@@ -10,6 +10,8 @@ public interface GSConstants {
     long READ_TIMEOUT = 10L;
     String USER_DETAILS = "USER_DETAILS";
     String USER_NAME = "USER_NAME";
+    String URL = "URL";
+    String REPO_NAME = "REPO_NAME";
 
 
     interface Github{
@@ -26,6 +28,8 @@ public interface GSConstants {
         String LIST_TYPE = "LIST_TYPE";
         int FOLLOWERS = 0;
         int FOLLOWING = 1;
+        int STARGAZER = 2;
+        int WATCHERS = 3;
     }
 
 }

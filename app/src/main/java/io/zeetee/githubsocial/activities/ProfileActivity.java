@@ -1,10 +1,7 @@
 package io.zeetee.githubsocial.activities;
 
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.widget.Toolbar;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -26,7 +23,7 @@ import io.zeetee.githubsocial.network.RestApi;
 import io.zeetee.githubsocial.utils.GSConstants;
 import io.zeetee.githubsocial.utils.LinkSpan;
 
-public class ProfileActivity extends AbstractBaseActivity {
+public class ProfileActivity extends AbstractPushActivity {
 
     private static final String TAG = ProfileActivity.class.getSimpleName();
 
@@ -43,16 +40,6 @@ public class ProfileActivity extends AbstractBaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
-
-//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
-
 
         mImage = (SimpleDraweeView) findViewById(R.id.user_image);
 
@@ -91,6 +78,13 @@ public class ProfileActivity extends AbstractBaseActivity {
 
         fetchUserDetails(userName);
 
+        findViewById(R.id.btn_repositories).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showUserRepos(userName);
+            }
+        });
+
     }
 
     @Override
@@ -111,12 +105,7 @@ public class ProfileActivity extends AbstractBaseActivity {
                         ProfileActivity.this.userDetails = userDetails;
                         initUI();
                     }
-                }, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) throws Exception {
-                        Log.e("GTGT","Error while fetching User Details",throwable);
-                    }
-                });
+                }, throwableConsumer);
     }
 
     private void initUI(){
@@ -153,29 +142,19 @@ public class ProfileActivity extends AbstractBaseActivity {
     }
 
 
-
-
     ClickableSpan followersClicked = new LinkSpan() {
         @Override
         public void onClick(View textView) {
-        showUserList(GSConstants.ListType.FOLLOWERS);
+        showUserList(GSConstants.ListType.FOLLOWERS,userName);
         }
     };
 
     ClickableSpan followingClicked = new LinkSpan() {
         @Override
         public void onClick(View textView) {
-            showUserList(GSConstants.ListType.FOLLOWING);
+            showUserList(GSConstants.ListType.FOLLOWING,userName);
         }
     };
-
-
-    private void showUserList(int userListType){
-        Intent intent = new Intent(this, UserListActivity.class);
-        intent.putExtra(GSConstants.ListType.LIST_TYPE,userListType);
-        intent.putExtra(GSConstants.USER_NAME,userDetails.login);
-        startActivity(intent);
-    }
 
 
 }

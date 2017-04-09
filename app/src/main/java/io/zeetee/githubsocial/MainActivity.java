@@ -22,15 +22,16 @@ import java.util.List;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
+import io.zeetee.githubsocial.activities.AbstractBaseActivity;
 import io.zeetee.githubsocial.activities.LoginActivity;
 import io.zeetee.githubsocial.activities.ProfileActivity;
 import io.zeetee.githubsocial.adapters.UsersAdapter;
 import io.zeetee.githubsocial.models.GithubUser;
 import io.zeetee.githubsocial.network.RestApi;
 import io.zeetee.githubsocial.utils.GSConstants;
-import io.zeetee.githubsocial.utils.IUserActions;
+import io.zeetee.githubsocial.utils.IActions;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, IUserActions {
+public class MainActivity extends AbstractBaseActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private RecyclerView mRecyclerView;
     private UsersAdapter usersAdapter;
@@ -78,12 +79,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     public void accept(List<GithubUser> githubUsers) throws Exception {
                         usersAdapter.setUsers(githubUsers);
                     }
-                }, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) throws Exception {
-                        Log.e("GTGT","Error while fetching home",throwable);
-                    }
-                });
+                }, throwableConsumer);
 
     }
 
@@ -149,10 +145,5 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         startActivity(intent);
     }
 
-    @Override
-    public void onUserClicked(String userName) {
-        Intent intent = new Intent(this, ProfileActivity.class);
-        intent.putExtra(GSConstants.USER_NAME, userName);
-        startActivity(intent);
-    }
+
 }

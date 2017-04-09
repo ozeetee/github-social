@@ -2,6 +2,8 @@ package io.zeetee.githubsocial.activities;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.Toolbar;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -41,7 +43,8 @@ public class RepoDetailsActivity extends AbstractPushActivity {
     private String repoName;
     private MarkdownView mMarkdownView;
     private Button mFollowButton;
-
+    private FloatingActionButton fab;
+    boolean isStarred = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,6 +63,20 @@ public class RepoDetailsActivity extends AbstractPushActivity {
         if(getSupportActionBar() != null){
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
+
+        fab = (FloatingActionButton) findViewById(R.id.fab_star);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+            if(isStarred){
+                isStarred = false;
+                fab.setImageResource(R.drawable.ic_star_white);
+            }else{
+                isStarred = true;
+                fab.setImageResource(R.drawable.ic_star_border_white);
+            }
+            }
+        });
 
 //        repoUrl = getIntent()!=null ? getIntent().getStringExtra(GSConstants.URL) : null;
         repoName = "guava"; //"https://api.github.com/repos/swankjesse/guava";

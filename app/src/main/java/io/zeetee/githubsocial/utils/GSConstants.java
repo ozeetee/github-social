@@ -30,6 +30,7 @@ public interface GSConstants {
         int FOLLOWING = 1;
         int STARGAZER = 2;
         int WATCHERS = 3;
+        int ORG_MEMBERS = 4;
     }
 
     interface UserType{

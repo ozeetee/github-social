@@ -1,6 +1,5 @@
 package io.zeetee.githubsocial.activities;
 
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -8,7 +7,6 @@ import android.support.v7.widget.Toolbar;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
-import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.StyleSpan;
 import android.util.Log;
@@ -41,12 +39,17 @@ public class ProfileActivity extends AbstractPushActivity {
 
     private TextView mBlog;
 
-    private TextView mStats;
-
-    private View mProfileContainer;
 
     private Button mRepos;
     private Button mGists;
+    private Button mFollowers;
+    private Button mFollowing;
+    private Button mMembers;
+
+    //Containers
+    private View mProfileContainer;
+    private View mFollowingFollowerContainer;
+    private View mOrgMembersContainer;
 
 
 
@@ -58,12 +61,17 @@ public class ProfileActivity extends AbstractPushActivity {
         mImage = (SimpleDraweeView) findViewById(R.id.user_image);
 
         mName = (TextView) findViewById(R.id.tv_name);
-        mStats = (TextView) findViewById(R.id.tv_stats);
 
         mBio = (TextView) findViewById(R.id.tv_bio);
         mBlog = (TextView) findViewById(R.id.tv_blog);
 
+        mFollowingFollowerContainer = findViewById(R.id.following_follower_container);
         mProfileContainer = findViewById(R.id.main_container);
+        mOrgMembersContainer = findViewById(R.id.org_members_container);
+
+        mFollowers = (Button) findViewById(R.id.btn_followers);
+        mFollowing = (Button) findViewById(R.id.btn_following);
+        mMembers = (Button) findViewById(R.id.btn_members);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -103,7 +111,26 @@ public class ProfileActivity extends AbstractPushActivity {
                 showUserRepos(userName);
             }
         });
+        mFollowing.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showUserList(GSConstants.ListType.FOLLOWING, userName);
+            }
+        });
 
+        mFollowers.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showUserList(GSConstants.ListType.FOLLOWERS, userName);
+            }
+        });
+
+        mMembers.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showUserList(GSConstants.ListType.ORG_MEMBERS, userName);
+            }
+        });
     }
 
     @Override
@@ -141,29 +168,24 @@ public class ProfileActivity extends AbstractPushActivity {
         mBlog.setText(userDetails.blog);
         showFollowingFollowersCount();
         showGithubStats();
+
     }
 
     private void showFollowingFollowersCount(){
-        int start = 0;
-        int end = 0;
-        SpannableStringBuilder stringBuilder = new SpannableStringBuilder("Following: ");
-        stringBuilder.append(String.valueOf(userDetails.following));
-        end = stringBuilder.length();
+        if(userDetails == null || userDetails.type == null || userDetails.type.equalsIgnoreCase(GSConstants.UserType.ORG)) {
+            mFollowingFollowerContainer.setVisibility(View.GONE);
+            mOrgMembersContainer.setVisibility(View.VISIBLE);
+            return;
+        }
+        mOrgMembersContainer.setVisibility(View.GONE);
+        mFollowingFollowerContainer.setVisibility(View.VISIBLE);
+        SpannableStringBuilder stringBuilder = new SpannableStringBuilder(String.valueOf(userDetails.following));
+        stringBuilder.append(" Following");
+        mFollowing.setText(stringBuilder);
 
-        stringBuilder.setSpan(followingClicked,start,end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        stringBuilder.append("  |  ");
-
-        start = stringBuilder.length();
-
-        stringBuilder.append("Followers: ");
-        stringBuilder.append(String.valueOf(userDetails.followers));
-        end = stringBuilder.length();
-
-        stringBuilder.setSpan(followersClicked,start,end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-        mStats.setText(stringBuilder);
-        mStats.setMovementMethod(LinkMovementMethod.getInstance());
-        mStats.setHighlightColor(Color.TRANSPARENT);
+        stringBuilder = new SpannableStringBuilder(String.valueOf(userDetails.followers));
+        stringBuilder.append(" Followers");
+        mFollowers.setText(stringBuilder);
     }
 
     private void showGithubStats(){
@@ -182,21 +204,6 @@ public class ProfileActivity extends AbstractPushActivity {
         stringBuilder.append("\n").append("Gists");
         mGists.setText(stringBuilder);
     }
-
-
-    ClickableSpan followersClicked = new LinkSpan() {
-        @Override
-        public void onClick(View textView) {
-        showUserList(GSConstants.ListType.FOLLOWERS,userName);
-        }
-    };
-
-    ClickableSpan followingClicked = new LinkSpan() {
-        @Override
-        public void onClick(View textView) {
-            showUserList(GSConstants.ListType.FOLLOWING,userName);
-        }
-    };
 
 
     @Override

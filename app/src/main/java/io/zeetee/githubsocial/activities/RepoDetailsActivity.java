@@ -41,7 +41,6 @@ public class RepoDetailsActivity extends AbstractPushActivity {
     private GithubRepoReadme githubRepoReadme;
 
     private TextView mName;
-    private TextView mStats;
     private TextView mInfo;
     private String repoOwner;
     private String repoName;
@@ -52,9 +51,12 @@ public class RepoDetailsActivity extends AbstractPushActivity {
 
     private SimpleDraweeView mUserImage;
     private TextView mUserName;
-    private View mUserContainer;
 
+    private View mUserContainer;
     private View mMainContainer;
+
+    private Button mStarGazers;
+    private Button mWatchers;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,9 +65,11 @@ public class RepoDetailsActivity extends AbstractPushActivity {
         mMainContainer = findViewById(R.id.main_container);
 
         mName = (TextView) findViewById(R.id.tv_name);
-        mStats = (TextView) findViewById(R.id.tv_stats);
         mInfo = (TextView) findViewById(R.id.tv_info);
         mFollowButton = (Button) findViewById(R.id.btn_follow);
+        mStarGazers = (Button) findViewById(R.id.btn_stargazer);
+        mWatchers = (Button) findViewById(R.id.btn_watchers);
+
         mMarkdownView = (MarkdownView)findViewById(R.id.markdown_view);
         mMarkdownView.addStyleSheet(new Github());
 
@@ -115,6 +119,8 @@ public class RepoDetailsActivity extends AbstractPushActivity {
             }
         });
         fetchRepoDetails();
+        mStarGazers.setOnClickListener(starGazersClicked);
+        mWatchers.setOnClickListener(watchersClicked);
     }
 
     private void fetchRepoDetails(){
@@ -152,34 +158,21 @@ public class RepoDetailsActivity extends AbstractPushActivity {
     private void initDetails(){
         showScreenContent();
         setTitle(githubRepoDetails.name);
-        mName.setText(githubRepoDetails.full_name);
+        mName.setText(githubRepoDetails.name);
         mInfo.setText(githubRepoDetails.description);
         showStats();
         showOwner();
     }
 
     private void showStats(){
-        int start = 0;
-        int end = 0;
-        SpannableStringBuilder stringBuilder = new SpannableStringBuilder("Stars: ");
-        stringBuilder.append(String.valueOf(githubRepoDetails.stargazers_count));
 
-        end = stringBuilder.length();
+        SpannableStringBuilder stringBuilder = new SpannableStringBuilder(String.valueOf(githubRepoDetails.stargazers_count));
+        stringBuilder.append(" Stars");
+        mStarGazers.setText(stringBuilder);
 
-        stringBuilder.setSpan(starGazersClicked,start,end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        stringBuilder.append("  |  ");
-
-        start = stringBuilder.length();
-
-        stringBuilder.append("Watchers: ");
-        stringBuilder.append(String.valueOf(githubRepoDetails.watchers_count));
-        end = stringBuilder.length();
-
-        stringBuilder.setSpan(watchersClicked,start,end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-        mStats.setText(stringBuilder);
-        mStats.setMovementMethod(LinkMovementMethod.getInstance());
-        mStats.setHighlightColor(Color.TRANSPARENT);
+        stringBuilder = new SpannableStringBuilder(String.valueOf(githubRepoDetails.watchers_count));
+        stringBuilder.append(" Watchers");
+        mWatchers.setText(stringBuilder);
     }
 
     private void showOwner(){
@@ -189,7 +182,7 @@ public class RepoDetailsActivity extends AbstractPushActivity {
     }
 
 
-    ClickableSpan starGazersClicked = new LinkSpan() {
+    View.OnClickListener starGazersClicked = new View.OnClickListener() {
         @Override
         public void onClick(View textView) {
             if(githubRepoDetails == null || githubRepoDetails.owner == null) return;
@@ -197,7 +190,7 @@ public class RepoDetailsActivity extends AbstractPushActivity {
         }
     };
 
-    ClickableSpan watchersClicked = new LinkSpan() {
+    View.OnClickListener watchersClicked = new View.OnClickListener() {
         @Override
         public void onClick(View textView) {
             if(githubRepoDetails == null || githubRepoDetails.owner == null) return;

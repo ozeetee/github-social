@@ -28,13 +28,46 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
-            <TextView
-                android:textSize="14sp"
-                android:id="@+id/tv_stats"
-                android:clickable="true"
+
+            <RelativeLayout
                 android:gravity="center"
                 android:layout_width="match_parent"
-                android:layout_height="42dp" />
+                android:layout_height="wrap_content">
+                <Button
+                    style="@style/Widget.AppCompat.Button.Borderless"
+                    android:layout_centerVertical="true"
+                    android:layout_toLeftOf="@+id/sep_f"
+                    android:textAllCaps="false"
+                    android:paddingLeft="0dp"
+                    android:paddingRight="0dp"
+                    android:textStyle="normal"
+                    android:id="@+id/btn_stargazer"
+                    android:gravity="center"
+                    android:layout_marginRight="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <View
+                    android:id="@+id/sep_f"
+                    android:layout_centerVertical="true"
+                    android:layout_centerHorizontal="true"
+                    android:background="@color/light"
+                    android:layout_width="1dp"
+                    android:layout_height="30dp"/>
+                <Button
+                    android:layout_centerVertical="true"
+                    android:layout_toRightOf="@+id/sep_f"
+                    android:layout_marginLeft="8dp"
+                    style="@style/Widget.AppCompat.Button.Borderless"
+                    android:textAllCaps="false"
+                    android:paddingLeft="0dp"
+                    android:paddingRight="0dp"
+                    android:textStyle="normal"
+                    android:id="@+id/btn_watchers"
+                    android:gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </RelativeLayout>
+
 
 
             <TextView

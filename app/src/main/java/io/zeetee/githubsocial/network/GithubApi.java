@@ -64,7 +64,8 @@ public interface GithubApi {
     @GET("/repos/{owner}/{repo}/stargazers")
     Observable<List<GithubUser>> repoStarGazer(@Path("repo") String repo, @Path("owner") String owner);
 
-
+    @GET("/orgs/{org}/members")
+    Observable<List<GithubUser>> orgMembers(@Path("org") String org);
 
 
     // Following generic method won't work

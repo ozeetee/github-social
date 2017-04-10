@@ -34,8 +34,6 @@ public class UserListActivity extends AbstractPushActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_list);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
         if(getSupportActionBar() != null ) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -77,6 +75,8 @@ public class UserListActivity extends AbstractPushActivity {
                 return RestApi.stargazer(repoName, userName);
             case GSConstants.ListType.WATCHERS:
                 return RestApi.watchers(repoName, userName);
+            case GSConstants.ListType.ORG_MEMBERS:
+                return RestApi.orgMembers(userName);
         }
         return null;
     }
@@ -85,16 +85,19 @@ public class UserListActivity extends AbstractPushActivity {
     private void setListTitle(){
         switch (listType){
             case GSConstants.ListType.FOLLOWERS:
-                setTitle("Followers");
+                setTitle(this.userName + " Followers");
                 break;
             case GSConstants.ListType.FOLLOWING:
-                setTitle("Following");
+                setTitle(this.userName + " Following");
                 break;
             case GSConstants.ListType.STARGAZER:
-                setTitle("Stargazer");
+                setTitle(this.repoName + " Stargazer");
                 break;
             case GSConstants.ListType.WATCHERS:
-                setTitle("Watchers");
+                setTitle(this.repoName + " Watchers");
+                break;
+            case GSConstants.ListType.ORG_MEMBERS:
+                setTitle(this.userName + " Members");
                 break;
         }
     }

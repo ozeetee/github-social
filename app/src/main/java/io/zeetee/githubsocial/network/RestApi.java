@@ -87,4 +87,8 @@ public class RestApi {
     public static Observable<List<GithubUser>> watchers(String repoName, String userName) {
         return getClient().repoWatchers(repoName,userName);
     }
+
+    public static Observable<List<GithubUser>> orgMembers(String org){
+        return getClient().orgMembers(org);
+    }
 }

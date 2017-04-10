@@ -45,15 +45,45 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
-            <TextView
-                android:textSize="14sp"
-                android:layout_marginTop="2dp"
-                android:id="@+id/tv_stats"
-                android:clickable="true"
-                android:gravity="center|center_vertical"
+            <RelativeLayout
+                android:id="@+id/following_follower_container"
+                android:gravity="center"
                 android:layout_width="match_parent"
-                android:layout_height="36dp" />
-
+                android:layout_height="wrap_content">
+                <Button
+                    style="@style/Widget.AppCompat.Button.Borderless"
+                    android:layout_centerVertical="true"
+                    android:layout_toLeftOf="@+id/sep_f"
+                    android:textAllCaps="false"
+                    android:paddingLeft="0dp"
+                    android:paddingRight="0dp"
+                    android:textStyle="normal"
+                    android:id="@+id/btn_followers"
+                    android:gravity="center"
+                    android:layout_marginRight="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <View
+                    android:id="@+id/sep_f"
+                    android:layout_centerVertical="true"
+                    android:layout_centerHorizontal="true"
+                    android:background="@color/light"
+                    android:layout_width="1dp"
+                    android:layout_height="30dp"/>
+                <Button
+                    android:layout_centerVertical="true"
+                    android:layout_toRightOf="@+id/sep_f"
+                    android:layout_marginLeft="8dp"
+                    style="@style/Widget.AppCompat.Button.Borderless"
+                    android:textAllCaps="false"
+                    android:paddingLeft="0dp"
+                    android:paddingRight="0dp"
+                    android:textStyle="normal"
+                    android:id="@+id/btn_following"
+                    android:gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </RelativeLayout>
 
             <TextView
                 android:layout_marginTop="16dp"
@@ -66,19 +96,17 @@
                 android:layout_width="match_parent"
                 android:gravity="left"
                 android:layout_height="wrap_content" />
-                <LinearLayout
-                    android:padding="16dp"
-                    android:background="@drawable/section"
+            <LinearLayout
+                android:padding="16dp"
+                android:background="@drawable/section"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    style="@style/TextAppearance.AppCompat.Body1"
+                    android:id="@+id/tv_bio"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-                    <TextView
-                        style="@style/TextAppearance.AppCompat.Body1"
-                        android:id="@+id/tv_bio"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content" />
             </LinearLayout>
-
-
 
 
 
@@ -118,28 +146,55 @@
                 android:gravity="left"
                 android:layout_height="wrap_content" />
             <LinearLayout
+                android:paddingTop="16dp"
+                android:paddingBottom="16dp"
                 android:orientation="horizontal"
                 android:gravity="left"
-                android:padding="16dp"
                 android:background="@drawable/section"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
                 <Button
-                    style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                    style="@style/Widget.AppCompat.Button.Borderless"
+                    android:paddingLeft="0dp"
+                    android:paddingRight="0dp"
                     android:textStyle="normal"
                     android:id="@+id/btn_repos"
                     android:gravity="center"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
                 <Button
-                    android:layout_marginLeft="8dp"
-                    style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                    style="@style/Widget.AppCompat.Button.Borderless"
+                    android:paddingLeft="0dp"
+                    android:paddingRight="0dp"
                     android:textStyle="normal"
                     android:id="@+id/btn_gits"
                     android:gravity="center"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
             </LinearLayout>
+
+            <LinearLayout
+                android:layout_marginTop="16dp"
+                android:id="@+id/org_members_container"
+                android:orientation="horizontal"
+                android:gravity="left"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:background="@drawable/section"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <Button
+                    style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                    android:paddingLeft="0dp"
+                    android:paddingRight="0dp"
+                    android:textStyle="normal"
+                    android:id="@+id/btn_members"
+                    android:text="Org Members"
+                    android:gravity="left"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
 
         </LinearLayout>
     </FrameLayout>

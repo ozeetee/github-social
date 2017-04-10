@@ -9,9 +9,9 @@ import java.util.Date;
  * By GT.
  */
 
-public class GithubRepo implements Parcelable{
+public class GithubRepo extends GithubItem implements Parcelable{
 
-    public long id;
+
     public String name;
     public String full_name;
     public String description;

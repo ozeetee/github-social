@@ -14,6 +14,7 @@
     <include layout="@layout/layout_progress_and_error"/>
 
     <android.support.v7.widget.RecyclerView
+        android:paddingTop="4dp"
         android:paddingBottom="42dp"
         android:clipToPadding="false"
         android:id="@+id/recycler_view"

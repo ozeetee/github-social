@@ -2,46 +2,41 @@ package io.zeetee.githubsocial;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
 import java.util.List;
 
+import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import io.zeetee.githubsocial.activities.AbstractBaseActivity;
 import io.zeetee.githubsocial.activities.LoginActivity;
-import io.zeetee.githubsocial.activities.ProfileActivity;
-import io.zeetee.githubsocial.adapters.UsersAdapter;
-import io.zeetee.githubsocial.models.GithubUser;
+import io.zeetee.githubsocial.adapters.GithubItemAdapter;
+import io.zeetee.githubsocial.models.GithubItem;
+import io.zeetee.githubsocial.models.GithubSearchResult;
 import io.zeetee.githubsocial.network.RestApi;
-import io.zeetee.githubsocial.utils.GSConstants;
-import io.zeetee.githubsocial.utils.IActions;
+import io.zeetee.githubsocial.utils.Utils;
+import io.zeetee.githubsocial.utils.VerticalSpaceItemDecoration;
 
 public class MainActivity extends AbstractBaseActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private RecyclerView mRecyclerView;
-    private UsersAdapter usersAdapter;
+    private GithubItemAdapter githubItemAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        setupActivity();
-
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, mToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -54,38 +49,47 @@ public class MainActivity extends AbstractBaseActivity implements NavigationView
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false);
         mRecyclerView.setLayoutManager(layoutManager);
-        usersAdapter = new UsersAdapter(this);
-        mRecyclerView.setAdapter(usersAdapter);
-        fetchHomePage();
 
+        int verticalSpacing = getResources().getDimensionPixelSize(R.dimen.item_vertical_spacing);
+        VerticalSpaceItemDecoration verticalSpaceItemDecoration = new VerticalSpaceItemDecoration(verticalSpacing);
+        mRecyclerView.addItemDecoration(verticalSpaceItemDecoration);
+
+        githubItemAdapter = new GithubItemAdapter(this);
+        mRecyclerView.setAdapter(githubItemAdapter);
+        fetchHomePage();
         mErrorResolveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 fetchHomePage();
             }
         });
-
     }
 
 
     private void fetchHomePage(){
         showScreenLoading();
-        RestApi.fetchHome()
+        Observable
+                .zip(RestApi.fetchTopAndroidRepo(), RestApi.fetchMostFollowedAndroidDevs(), new BiFunction<GithubSearchResult, GithubSearchResult, List<GithubItem>>() {
+                    @Override
+                    public List<GithubItem> apply(GithubSearchResult topAndroidRepo, GithubSearchResult mostFollowedAndroidDev) throws Exception {
+                        return Utils.constructHomePage(topAndroidRepo,mostFollowedAndroidDev);
+                    }
+                })
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<List<GithubUser>>() {
+                .subscribe(new Consumer<List<GithubItem>>() {
                     @Override
-                    public void accept(List<GithubUser> githubUsers) throws Exception {
-                        usersAdapter.setUsers(githubUsers);
+                    public void accept(List<GithubItem> gihubItems) throws Exception {
+                        githubItemAdapter.setGithubItems(gihubItems);
                         initUI();
                     }
                 }, fullScreenErrorConsumer);
     }
 
+
     private void initUI(){
         showScreenContent();
     }
-
 
     @Override
     public void onBackPressed() {

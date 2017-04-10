@@ -35,19 +35,7 @@ public class RepoListActivity extends AbstractPushActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_repo_list);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
         if(getSupportActionBar() != null ) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
         if(getIntent() != null){
             if(getIntent().getStringExtra(GSConstants.USER_NAME) != null) this.userName = getIntent().getStringExtra(GSConstants.USER_NAME);
@@ -67,14 +55,21 @@ public class RepoListActivity extends AbstractPushActivity {
         repoListAdapter = new RepoListAdapter(this);
         mRecyclerView.setAdapter(repoListAdapter);
         fetchRepos();
+        mErrorResolveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fetchRepos();
+            }
+        });
     }
 
     private void fetchRepos(){
         if(TextUtils.isEmpty(userName)) return;
+        showScreenLoading();
         RestApi.repos(userName)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(consumer,throwableConsumer);
+                .subscribe(consumer,fullScreenErrorConsumer);
 
     }
 
@@ -82,6 +77,7 @@ public class RepoListActivity extends AbstractPushActivity {
     private Consumer<List<GithubRepo>> consumer = new Consumer<List<GithubRepo>>() {
         @Override
         public void accept(List<GithubRepo> githubRepos) throws Exception {
+            showScreenContent();
             repoListAdapter.setRepos(githubRepos);
         }
     };

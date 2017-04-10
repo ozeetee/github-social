@@ -8,6 +8,7 @@ import io.zeetee.githubsocial.models.AuthResponse;
 import io.zeetee.githubsocial.models.GithubRepo;
 import io.zeetee.githubsocial.models.GithubRepoDetails;
 import io.zeetee.githubsocial.models.GithubRepoReadme;
+import io.zeetee.githubsocial.models.GithubSearchResult;
 import io.zeetee.githubsocial.models.GithubUser;
 import io.zeetee.githubsocial.models.GithubUserDetails;
 import retrofit2.http.Body;
@@ -26,13 +27,20 @@ public interface GithubApi {
     @POST("authorizations")
     Observable<AuthResponse> authorizations(@Body AuthDto authDto);
 
+    //For Home Screen
+    @GET("/search/repositories?order=desc&q=Android+language:Java&sort=stars")
+    Observable<GithubSearchResult> fetchTopAndroidRepo();
+
+    @GET("/search/users?order=desc&q=Android+language:Java&sort=followers")
+    Observable<GithubSearchResult> fetchMostFollowedAndroidDevs();
+
     @GET("/user/following")
     Observable<List<GithubUser>> meFollowing(@Header("Authorization") String token);
 
     @GET("/user/followers")
     Observable<List<GithubUser>> meFollowers(@Header("Authorization") String token);
 
-    @GET("/users/{username}/followingasdfasdfs")
+    @GET("/users/{username}/following")
     Observable<List<GithubUser>> following(@Path("username") String username);
 
     @GET("/users/{username}/followers")

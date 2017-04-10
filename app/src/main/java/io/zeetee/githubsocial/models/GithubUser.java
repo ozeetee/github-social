@@ -7,10 +7,9 @@ import android.os.Parcelable;
  * By GT.
  */
 
-public class GithubUser implements Parcelable{
+public class GithubUser extends GithubItem implements Parcelable {
 
     public String login;
-    public long id;
     public String avatar_url;
     public String gravatar_id;
     public String url;

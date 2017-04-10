@@ -98,6 +98,7 @@ public class ProfileActivity extends AbstractPushActivity {
 
 
     private void fetchUserDetails(String userName){
+        showScreenLoading();
         RestApi.user(userName)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -111,6 +112,7 @@ public class ProfileActivity extends AbstractPushActivity {
     }
 
     private void initUI(){
+        showScreenContent();
         if(userDetails == null) return;
         if(!TextUtils.isEmpty(userDetails.avatar_url)){
             mImage.setImageURI(userDetails.avatar_url);

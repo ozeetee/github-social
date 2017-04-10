@@ -39,15 +39,6 @@ public class UserListActivity extends AbstractPushActivity {
 
         if(getSupportActionBar() != null ) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
         if(getIntent() != null){
             if(getIntent().getStringExtra(GSConstants.USER_NAME) != null) this.userName = getIntent().getStringExtra(GSConstants.USER_NAME);
             if(getIntent().getStringExtra(GSConstants.REPO_NAME) != null) this.repoName = getIntent().getStringExtra(GSConstants.REPO_NAME);
@@ -66,11 +57,12 @@ public class UserListActivity extends AbstractPushActivity {
 
     private void fetchUserList(){
         if(TextUtils.isEmpty(userName)) return;
+        showScreenLoading();
         Observable<List<GithubUser>> observable = getApiObservable();
         if(observable != null){
             observable.subscribeOn(Schedulers.newThread())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(consumer,throwableConsumer);
+                    .subscribe(consumer,fullScreenErrorConsumer);
         }
     }
 
@@ -111,6 +103,7 @@ public class UserListActivity extends AbstractPushActivity {
     private Consumer<List<GithubUser>> consumer = new Consumer<List<GithubUser>>() {
         @Override
         public void accept(List<GithubUser> githubUsers) throws Exception {
+            showScreenContent();
             userListAdapter.setUsers(githubUsers);
         }
     };

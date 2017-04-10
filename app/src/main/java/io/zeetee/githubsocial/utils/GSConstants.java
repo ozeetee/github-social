@@ -32,4 +32,9 @@ public interface GSConstants {
         int WATCHERS = 3;
     }
 
+    interface UserType{
+        String ORG = "Organization";
+        String USER = "User";
+    }
+
 }

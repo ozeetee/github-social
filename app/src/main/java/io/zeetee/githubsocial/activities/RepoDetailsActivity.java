@@ -66,12 +66,8 @@ public class RepoDetailsActivity extends AbstractPushActivity {
         mStats = (TextView) findViewById(R.id.tv_stats);
         mInfo = (TextView) findViewById(R.id.tv_info);
         mFollowButton = (Button) findViewById(R.id.btn_follow);
-
         mMarkdownView = (MarkdownView)findViewById(R.id.markdown_view);
         mMarkdownView.addStyleSheet(new Github());
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
         if(getSupportActionBar() != null){
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -90,8 +86,16 @@ public class RepoDetailsActivity extends AbstractPushActivity {
             }
             }
         });
-        repoName = "guava"; //"https://api.github.com/repos/swankjesse/guava";
-        repoOwner = "google";
+        if(getIntent() != null){
+            repoOwner = getIntent().getStringExtra(GSConstants.USER_NAME);
+            repoName = getIntent().getStringExtra(GSConstants.REPO_NAME);
+        }
+
+        if(TextUtils.isEmpty(repoName) || TextUtils.isEmpty(repoOwner)){
+            //Error condition
+            return;
+        }
+
 
         mUserName = (TextView) findViewById(R.id.tv_user_name);
         mUserImage = (SimpleDraweeView) findViewById(R.id.user_image);
@@ -104,16 +108,21 @@ public class RepoDetailsActivity extends AbstractPushActivity {
             }
         });
 
+        mErrorResolveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fetchRepoDetails();
+            }
+        });
         fetchRepoDetails();
-        initReadMe();
-
     }
 
     private void fetchRepoDetails(){
+        showScreenLoading();
         RestApi.repoDetails(repoOwner,repoName)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(detailsConsumer,throwableConsumer);
+                .subscribe(detailsConsumer,fullScreenErrorConsumer);
 
         RestApi.repoReadme(repoOwner,repoName)
                 .subscribeOn(Schedulers.newThread())
@@ -141,6 +150,7 @@ public class RepoDetailsActivity extends AbstractPushActivity {
     };
 
     private void initDetails(){
+        showScreenContent();
         setTitle(githubRepoDetails.name);
         mName.setText(githubRepoDetails.full_name);
         mInfo.setText(githubRepoDetails.description);

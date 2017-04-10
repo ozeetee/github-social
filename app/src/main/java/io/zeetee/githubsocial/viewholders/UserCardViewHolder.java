@@ -1,12 +1,12 @@
 package io.zeetee.githubsocial.viewholders;
 
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
 
 import io.zeetee.githubsocial.R;
+import io.zeetee.githubsocial.models.GithubItem;
 import io.zeetee.githubsocial.models.GithubUser;
 import io.zeetee.githubsocial.utils.IActions;
 
@@ -14,7 +14,7 @@ import io.zeetee.githubsocial.utils.IActions;
  * By GT.
  */
 
-public class UserViewHolder extends RecyclerView.ViewHolder {
+public class UserCardViewHolder extends GithubItemViewHolder {
 
     private final TextView mName;
     private final TextView mStats;
@@ -22,8 +22,7 @@ public class UserViewHolder extends RecyclerView.ViewHolder {
     private final SimpleDraweeView mImage;
     private final View mUserContainer;
 
-
-    public UserViewHolder(View v, final IActions iUserActions) {
+    public UserCardViewHolder(View v, final IActions iUserActions) {
         super(v);
         mName = (TextView) v.findViewById(R.id.tv_user_name);
         mStats = (TextView) v.findViewById(R.id.tv_stats);
@@ -38,9 +37,13 @@ public class UserViewHolder extends RecyclerView.ViewHolder {
         });
     }
 
-    public void bind(GithubUser githubUser) {
-        mName.setText(githubUser.login);
-        mImage.setImageURI(githubUser.avatar_url);
-        mUserContainer.setTag(githubUser);
+    public void bind(GithubItem githubItem) {
+        if(githubItem == null) return;
+        if(githubItem instanceof GithubUser){
+            GithubUser githubUser = (GithubUser) githubItem;
+            mName.setText(githubUser.login);
+            mImage.setImageURI(githubUser.avatar_url);
+            mUserContainer.setTag(githubUser);
+        }
     }
 }

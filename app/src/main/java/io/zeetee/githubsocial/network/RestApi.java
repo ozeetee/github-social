@@ -8,6 +8,7 @@ import io.zeetee.githubsocial.GSApp;
 import io.zeetee.githubsocial.models.GithubRepo;
 import io.zeetee.githubsocial.models.GithubRepoDetails;
 import io.zeetee.githubsocial.models.GithubRepoReadme;
+import io.zeetee.githubsocial.models.GithubSearchResult;
 import io.zeetee.githubsocial.models.GithubUser;
 import io.zeetee.githubsocial.models.GithubUserDetails;
 import io.zeetee.githubsocial.utils.GSConstants;
@@ -34,13 +35,21 @@ public class RestApi {
     private static GithubApi createClient(){
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(GSConstants.Github.API_BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create(GsonHelper.getGson()))
+                .addConverterFactory(GsonConverterFactory.create(GsonHelper.getAppGson()))
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .client(GSApp.getCurrentInstance().getCustomOKClient())
                 .build();
         return retrofit.create(GithubApi.class);
     }
 
+
+    public static Observable<GithubSearchResult> fetchTopAndroidRepo(){
+        return getClient().fetchTopAndroidRepo();
+    }
+
+    public static Observable<GithubSearchResult> fetchMostFollowedAndroidDevs(){
+        return getClient().fetchMostFollowedAndroidDevs();
+    }
 
     public static Observable<List<GithubUser>> fetchHome(){
         return getClient().following("ozeetee");

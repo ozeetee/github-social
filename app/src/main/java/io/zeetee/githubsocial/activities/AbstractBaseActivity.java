@@ -1,6 +1,7 @@
 package io.zeetee.githubsocial.activities;
 
 import android.content.Intent;
+import android.support.annotation.LayoutRes;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -30,15 +31,16 @@ public abstract class AbstractBaseActivity extends AppCompatActivity implements 
     protected Button mErrorResolveButton;
 
     @Override
+    public void setContentView(@LayoutRes int layoutResID) {
+        super.setContentView(layoutResID);
+        setupActivity();
+    }
+
+    @Override
     public void onUserClicked(String userName) {
         Intent intent = new Intent(this, ProfileActivity.class);
         intent.putExtra(GSConstants.USER_NAME, userName);
         startActivity(intent);
-    }
-
-    @Override
-    public void onRepoClicked(String repoName) {
-
     }
 
     @Override
@@ -65,9 +67,10 @@ public abstract class AbstractBaseActivity extends AppCompatActivity implements 
     }
 
     @Override
-    public void showRepoDetails(String url){
+    public void showRepoDetails(String repoName, String repoOwner){
         Intent intent = new Intent(this, RepoDetailsActivity.class);
-        intent.putExtra(GSConstants.URL,url);
+        intent.putExtra(GSConstants.REPO_NAME,repoName);
+        intent.putExtra(GSConstants.USER_NAME,repoOwner);
         startActivity(intent);
     }
 

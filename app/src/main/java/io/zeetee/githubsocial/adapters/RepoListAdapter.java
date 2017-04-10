@@ -11,13 +11,13 @@ import java.util.List;
 import io.zeetee.githubsocial.R;
 import io.zeetee.githubsocial.models.GithubRepo;
 import io.zeetee.githubsocial.utils.IActions;
-import io.zeetee.githubsocial.viewholders.RepoListViewHolder;
+import io.zeetee.githubsocial.viewholders.RepoCardViewHolder;
 
 /**
  * By GT.
  */
 
-public class RepoListAdapter extends RecyclerView.Adapter<RepoListViewHolder>{
+public class RepoListAdapter extends RecyclerView.Adapter<RepoCardViewHolder>{
 
     private List<GithubRepo> repos = new ArrayList<>(0);
     private final IActions iActions;
@@ -32,13 +32,13 @@ public class RepoListAdapter extends RecyclerView.Adapter<RepoListViewHolder>{
     }
 
     @Override
-    public RepoListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RepoCardViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_repository,parent,false);
-        return new RepoListViewHolder(v,iActions);
+        return new RepoCardViewHolder(v,iActions);
     }
 
     @Override
-    public void onBindViewHolder(RepoListViewHolder holder, int position) {
+    public void onBindViewHolder(RepoCardViewHolder holder, int position) {
         holder.bind(repos.get(position));
     }
 

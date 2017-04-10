@@ -5,23 +5,28 @@ import com.google.gson.GsonBuilder;
 
 import java.util.Date;
 
+import io.zeetee.githubsocial.models.GithubItem;
+
 /**
  * By GT.
  */
 
 public class GsonHelper {
 
-    private static volatile Gson gson;
+    private static volatile Gson appGson;
 
-    public static Gson getGson(){
-        if(gson == null){
+    public static Gson getAppGson(){
+        if(appGson == null){
             synchronized (GsonHelper.class){
-                if(gson == null){
-                    gson = new GsonBuilder().registerTypeAdapter(Date.class, new GsonUTCDateAdapter()).create();
+                if(appGson == null){
+                    appGson = new GsonBuilder()
+                            .registerTypeAdapter(Date.class, new GsonUTCDateAdapter())
+                            .registerTypeAdapter(GithubItem.class, new GithubItemAdapter())
+                            .create();
                 }
             }
         }
-        return gson;
+        return appGson;
     }
 
 }

@@ -8,4 +8,48 @@
     <color name="medium">#94989F</color>
     <color name="light">#D5D6D9</color>
 
+    <color name="placeholder_color_1">#AB9BE1</color>
+    <color name="placeholder_color_2">#F19292</color>
+    <color name="placeholder_color_3">#DD93EC</color>
+    <color name="placeholder_color_4">#DF79A8</color>
+    <color name="placeholder_color_5">#F3AC68</color>
+    <color name="placeholder_color_6">#ED7772</color>
+    <color name="placeholder_color_7">#7EE1CB</color>
+    <color name="placeholder_color_8">#92A7F1</color>
+    <color name="placeholder_color_9">#D3EC93</color>
+    <color name="placeholder_color_10">#E1C29B</color>
+    <color name="placeholder_color_11">#92F193</color>
+    <color name="placeholder_color_12">#93E6EC</color>
+    <color name="placeholder_color_13">#D38CC9</color>
+    <color name="placeholder_color_14">#92CAF1</color>
+    <color name="placeholder_color_15">#7DECB1</color>
+    <color name="placeholder_color_16">#E0E19B</color>
+    <color name="placeholder_color_17">#83A6D8</color>
+    <color name="placeholder_color_18">#EC9393</color>
+    <color name="placeholder_color_19">#908AE9</color>
+    <color name="placeholder_color_20">#F192BA</color>
+
+    <integer-array name="placeholder_colors">
+        <item>@color/placeholder_color_1</item>
+        <item>@color/placeholder_color_2</item>
+        <item>@color/placeholder_color_3</item>
+        <item>@color/placeholder_color_4</item>
+        <item>@color/placeholder_color_5</item>
+        <item>@color/placeholder_color_6</item>
+        <item>@color/placeholder_color_7</item>
+        <item>@color/placeholder_color_8</item>
+        <item>@color/placeholder_color_9</item>
+        <item>@color/placeholder_color_10</item>
+        <item>@color/placeholder_color_11</item>
+        <item>@color/placeholder_color_12</item>
+        <item>@color/placeholder_color_13</item>
+        <item>@color/placeholder_color_14</item>
+        <item>@color/placeholder_color_15</item>
+        <item>@color/placeholder_color_16</item>
+        <item>@color/placeholder_color_17</item>
+        <item>@color/placeholder_color_18</item>
+        <item>@color/placeholder_color_19</item>
+        <item>@color/placeholder_color_20</item>
+    </integer-array>
+
 </resources>

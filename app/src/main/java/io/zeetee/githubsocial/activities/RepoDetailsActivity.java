@@ -54,11 +54,14 @@ public class RepoDetailsActivity extends AbstractPushActivity {
     private TextView mUserName;
     private View mUserContainer;
 
+    private View mMainContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_repo_details);
+        mMainContainer = findViewById(R.id.main_container);
+
         mName = (TextView) findViewById(R.id.tv_name);
         mStats = (TextView) findViewById(R.id.tv_stats);
         mInfo = (TextView) findViewById(R.id.tv_info);
@@ -208,4 +211,13 @@ public class RepoDetailsActivity extends AbstractPushActivity {
 //        mMarkdownView.loadMarkdownFromUrl(url);
     }
 
+    @Override
+    public void hideContent() {
+        mMainContainer.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void showContent() {
+        mMainContainer.setVisibility(View.VISIBLE);
+    }
 }

@@ -35,6 +35,7 @@ public class ProfileActivity extends AbstractPushActivity {
 
     private TextView mStats;
     private TextView mInfo;
+    private View mProfileContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +47,7 @@ public class ProfileActivity extends AbstractPushActivity {
         mName = (TextView) findViewById(R.id.tv_name);
         mStats = (TextView) findViewById(R.id.tv_stats);
         mInfo = (TextView) findViewById(R.id.tv_info);
+        mProfileContainer = findViewById(R.id.main_container);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -157,4 +159,13 @@ public class ProfileActivity extends AbstractPushActivity {
     };
 
 
+    @Override
+    public void hideContent() {
+        mProfileContainer.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void showContent() {
+        mProfileContainer.setVisibility(View.VISIBLE);
+    }
 }

@@ -11,6 +11,8 @@
     tools:context="io.zeetee.githubsocial.MainActivity"
     tools:showIn="@layout/app_bar_main">
 
+    <include layout="@layout/layout_progress_and_error"/>
+
     <android.support.v7.widget.RecyclerView
         android:paddingBottom="42dp"
         android:clipToPadding="false"

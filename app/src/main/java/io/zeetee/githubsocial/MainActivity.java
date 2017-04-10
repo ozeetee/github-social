@@ -40,21 +40,11 @@ public class MainActivity extends AbstractBaseActivity implements NavigationView
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        setupActivity();
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, mToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
@@ -66,11 +56,20 @@ public class MainActivity extends AbstractBaseActivity implements NavigationView
         mRecyclerView.setLayoutManager(layoutManager);
         usersAdapter = new UsersAdapter(this);
         mRecyclerView.setAdapter(usersAdapter);
-        fetchHomePageUsers();
+        fetchHomePage();
+
+        mErrorResolveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fetchHomePage();
+            }
+        });
+
     }
 
 
-    private void fetchHomePageUsers(){
+    private void fetchHomePage(){
+        showScreenLoading();
         RestApi.fetchHome()
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -78,10 +77,15 @@ public class MainActivity extends AbstractBaseActivity implements NavigationView
                     @Override
                     public void accept(List<GithubUser> githubUsers) throws Exception {
                         usersAdapter.setUsers(githubUsers);
+                        initUI();
                     }
-                }, throwableConsumer);
-
+                }, fullScreenErrorConsumer);
     }
+
+    private void initUI(){
+        showScreenContent();
+    }
+
 
     @Override
     public void onBackPressed() {
@@ -146,4 +150,13 @@ public class MainActivity extends AbstractBaseActivity implements NavigationView
     }
 
 
+    @Override
+    public void hideContent() {
+        mRecyclerView.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void showContent() {
+        mRecyclerView.setVisibility(View.VISIBLE);
+    }
 }

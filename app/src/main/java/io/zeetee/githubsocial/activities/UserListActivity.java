@@ -18,13 +18,11 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import io.zeetee.githubsocial.R;
 import io.zeetee.githubsocial.adapters.UserListAdapter;
-import io.zeetee.githubsocial.models.GithubRepo;
 import io.zeetee.githubsocial.models.GithubUser;
 import io.zeetee.githubsocial.network.RestApi;
 import io.zeetee.githubsocial.utils.GSConstants;
 
 public class UserListActivity extends AbstractPushActivity {
-
 
     private RecyclerView mRecyclerView;
     private UserListAdapter userListAdapter;
@@ -116,4 +114,14 @@ public class UserListActivity extends AbstractPushActivity {
             userListAdapter.setUsers(githubUsers);
         }
     };
+
+    @Override
+    public void hideContent() {
+        mRecyclerView.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void showContent() {
+        mRecyclerView.setVisibility(View.VISIBLE);
+    }
 }

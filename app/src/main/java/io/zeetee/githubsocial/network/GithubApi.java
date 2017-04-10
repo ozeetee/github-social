@@ -32,7 +32,7 @@ public interface GithubApi {
     @GET("/user/followers")
     Observable<List<GithubUser>> meFollowers(@Header("Authorization") String token);
 
-    @GET("/users/{username}/following")
+    @GET("/users/{username}/followingasdfasdfs")
     Observable<List<GithubUser>> following(@Path("username") String username);
 
     @GET("/users/{username}/followers")

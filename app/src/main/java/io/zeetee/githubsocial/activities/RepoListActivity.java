@@ -3,8 +3,6 @@ package io.zeetee.githubsocial.activities;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -25,8 +23,8 @@ import io.zeetee.githubsocial.utils.VerticalSpaceItemDecoration;
 
 /**
  * By GT.
+ *
  */
-
 public class RepoListActivity extends AbstractPushActivity {
 
     private RecyclerView mRecyclerView;
@@ -88,4 +86,13 @@ public class RepoListActivity extends AbstractPushActivity {
         }
     };
 
+    @Override
+    public void hideContent() {
+        mRecyclerView.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void showContent() {
+        mRecyclerView.setVisibility(View.VISIBLE);
+    }
 }

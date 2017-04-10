@@ -1,6 +1,8 @@
 package io.zeetee.githubsocial.activities;
 
 import android.graphics.Color;
+import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.text.SpannableStringBuilder;
@@ -8,8 +10,10 @@ import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
+import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
@@ -20,6 +24,7 @@ import io.reactivex.schedulers.Schedulers;
 import io.zeetee.githubsocial.R;
 import io.zeetee.githubsocial.models.GithubUserDetails;
 import io.zeetee.githubsocial.network.RestApi;
+import io.zeetee.githubsocial.utils.ColorDrawableHelper;
 import io.zeetee.githubsocial.utils.GSConstants;
 import io.zeetee.githubsocial.utils.LinkSpan;
 
@@ -32,10 +37,18 @@ public class ProfileActivity extends AbstractPushActivity {
 
     private SimpleDraweeView mImage;
     private TextView mName;
+    private TextView mBio;
+
+    private TextView mBlog;
 
     private TextView mStats;
-    private TextView mInfo;
+
     private View mProfileContainer;
+
+    private Button mRepos;
+    private Button mGists;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +59,10 @@ public class ProfileActivity extends AbstractPushActivity {
 
         mName = (TextView) findViewById(R.id.tv_name);
         mStats = (TextView) findViewById(R.id.tv_stats);
-        mInfo = (TextView) findViewById(R.id.tv_info);
+
+        mBio = (TextView) findViewById(R.id.tv_bio);
+        mBlog = (TextView) findViewById(R.id.tv_blog);
+
         mProfileContainer = findViewById(R.id.main_container);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -79,8 +95,9 @@ public class ProfileActivity extends AbstractPushActivity {
         setTitle(userName);
 
         fetchUserDetails(userName);
-
-        findViewById(R.id.btn_repositories).setOnClickListener(new View.OnClickListener() {
+        mRepos = (Button) findViewById(R.id.btn_repos);
+        mGists = (Button) findViewById(R.id.btn_gits);
+        mRepos.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 showUserRepos(userName);
@@ -118,8 +135,12 @@ public class ProfileActivity extends AbstractPushActivity {
             mImage.setImageURI(userDetails.avatar_url);
         }
         mName.setText(userDetails.name);
-        mInfo.setText(userDetails.bio);
+        Drawable mUserDrawable = ColorDrawableHelper.getInstance().getDrawableForUserType(userDetails.type);
+        mName.setCompoundDrawablesWithIntrinsicBounds(null,null,mUserDrawable,null);
+        mBio.setText(userDetails.bio);
+        mBlog.setText(userDetails.blog);
         showFollowingFollowersCount();
+        showGithubStats();
     }
 
     private void showFollowingFollowersCount(){
@@ -143,6 +164,23 @@ public class ProfileActivity extends AbstractPushActivity {
         mStats.setText(stringBuilder);
         mStats.setMovementMethod(LinkMovementMethod.getInstance());
         mStats.setHighlightColor(Color.TRANSPARENT);
+    }
+
+    private void showGithubStats(){
+        int start = 0;
+        int end = 0;
+
+        SpannableStringBuilder stringBuilder = new SpannableStringBuilder(String.valueOf(userDetails.public_repos));
+        end = stringBuilder.length();
+        stringBuilder.setSpan(new StyleSpan(Typeface.BOLD),start,end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        stringBuilder.append("\n").append("Repos");
+        mRepos.setText(stringBuilder);
+
+        stringBuilder = new SpannableStringBuilder(String.valueOf(userDetails.public_gists));
+        end = stringBuilder.length();
+        stringBuilder.setSpan(new StyleSpan(Typeface.BOLD),start,end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        stringBuilder.append("\n").append("Gists");
+        mGists.setText(stringBuilder);
     }
 
 

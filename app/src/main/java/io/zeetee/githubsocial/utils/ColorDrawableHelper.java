@@ -1,6 +1,5 @@
 package io.zeetee.githubsocial.utils;
 
-import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 
@@ -16,6 +15,8 @@ public class ColorDrawableHelper {
     private int[] colorsArr;
     private int drawableSize;
     private Drawable[] colorDrawables;
+    private Drawable orgIcon;
+    private Drawable userIcon;
 
     private ColorDrawableHelper(){
         colorsArr = GSApp.getCurrentInstance().getResources().getIntArray(R.array.placeholder_colors);
@@ -28,7 +29,7 @@ public class ColorDrawableHelper {
         return instance;
     }
 
-    public Drawable getColorDrawableForString(String string){
+    public Drawable getColorDrawableForLang(String string){
         int hashCode = 0;
         if(string != null) hashCode = string.hashCode();
         int offset = Math.abs(hashCode % colorsArr.length);
@@ -48,5 +49,23 @@ public class ColorDrawableHelper {
 //        return bgColorDrawable;
 
     }
+
+
+    public Drawable getDrawableForUserType(String userType){
+        if(userType == null) return null;
+        if(userType.equalsIgnoreCase(GSConstants.UserType.ORG)){
+            if(orgIcon == null ) orgIcon = GSApp.getCurrentInstance().getResources().getDrawable(R.drawable.ic_group_icon);
+            return orgIcon;
+        }
+
+        if(userType.equalsIgnoreCase(GSConstants.UserType.USER)){
+            if(userIcon == null ) userIcon = GSApp.getCurrentInstance().getResources().getDrawable(R.drawable.ic_user_icon);
+            return userIcon;
+        }
+
+        return null;
+    }
+
+
 
 }

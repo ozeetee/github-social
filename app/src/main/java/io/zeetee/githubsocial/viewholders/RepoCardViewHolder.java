@@ -79,7 +79,7 @@ public class RepoCardViewHolder extends GithubItemViewHolder {
                 mDescription.setText(repo.description);
             }
             mReproLanguage.setText(repo.language);
-            Drawable img = ColorDrawableHelper.getInstance().getColorDrawableForString(repo.language);
+            Drawable img = ColorDrawableHelper.getInstance().getColorDrawableForLang(repo.language);
             mReproLanguage.setCompoundDrawables(img, null, null, null);
 
             mRepoForks.setText(String.valueOf(repo.forks));

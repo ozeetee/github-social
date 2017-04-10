@@ -25,7 +25,7 @@ public class UserViewHolder extends RecyclerView.ViewHolder {
 
     public UserViewHolder(View v, final IActions iUserActions) {
         super(v);
-        mName = (TextView) v.findViewById(R.id.tv_name);
+        mName = (TextView) v.findViewById(R.id.tv_user_name);
         mStats = (TextView) v.findViewById(R.id.tv_stats);
         mInfo = (TextView) v.findViewById(R.id.tv_info);
         mImage = (SimpleDraweeView) v.findViewById(R.id.user_image);

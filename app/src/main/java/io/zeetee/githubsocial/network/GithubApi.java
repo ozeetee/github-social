@@ -7,6 +7,7 @@ import io.zeetee.githubsocial.dtos.AuthDto;
 import io.zeetee.githubsocial.models.AuthResponse;
 import io.zeetee.githubsocial.models.GithubRepo;
 import io.zeetee.githubsocial.models.GithubRepoDetails;
+import io.zeetee.githubsocial.models.GithubRepoReadme;
 import io.zeetee.githubsocial.models.GithubUser;
 import io.zeetee.githubsocial.models.GithubUserDetails;
 import retrofit2.http.Body;
@@ -44,7 +45,10 @@ public interface GithubApi {
     Observable<GithubUserDetails> user(@Path("username") String username);
 
     @GET("/repos/{owner}/{repo}")
-    Observable<GithubRepoDetails> getRepoDetails(@Path("owner") String owner, @Path("repo") String repo);
+    Observable<GithubRepoDetails> repoDetails(@Path("owner") String owner, @Path("repo") String repo);
+
+    @GET("/repos/{owner}/{repo}/readme")
+    Observable<GithubRepoReadme> repoReadme(@Path("owner") String owner, @Path("repo") String repo);
 
     @GET("/repos/{owner}/{repo}/watchers")
     Observable<List<GithubUser>> repoWatchers(@Path("repo") String repo, @Path("owner") String owner);

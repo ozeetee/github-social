@@ -14,7 +14,9 @@
         android:layout_alignParentLeft="true"
         fresco:roundAsCircle="true"
         android:id="@+id/user_image"
-        fresco:backgroundImage="@android:color/darker_gray"
+        fresco:placeholderImage="@drawable/identicon"
+        fresco:placeholderImageScaleType="center"
+        fresco:actualImageScaleType="centerCrop"
         fresco:roundWithOverlayColor="?android:attr/windowBackground"
         android:layout_width="40dp"
         android:layout_height="40dp" />

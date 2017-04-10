@@ -19,7 +19,9 @@
             android:layout_alignParentLeft="true"
             fresco:roundAsCircle="true"
             android:id="@+id/user_image"
-            fresco:backgroundImage="@android:color/darker_gray"
+            fresco:placeholderImage="@drawable/identicon"
+            fresco:placeholderImageScaleType="center"
+            fresco:actualImageScaleType="centerCrop"
             fresco:roundWithOverlayColor="@android:color/white"
             android:layout_width="60dp"
             android:layout_height="60dp" />
@@ -27,10 +29,9 @@
         <TextView
             android:textSize="14sp"
             android:textStyle="bold"
-            android:id="@+id/tv_name"
+            android:id="@+id/tv_user_name"
             android:maxLines="1"
             android:paddingLeft="8dp"
-            android:text="OzeeTee"
             android:layout_toRightOf="@+id/user_image"
             android:layout_centerVertical="true"
             android:layout_width="wrap_content"

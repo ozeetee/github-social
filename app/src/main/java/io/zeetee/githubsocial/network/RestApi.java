@@ -7,6 +7,7 @@ import io.reactivex.Observable;
 import io.zeetee.githubsocial.GSApp;
 import io.zeetee.githubsocial.models.GithubRepo;
 import io.zeetee.githubsocial.models.GithubRepoDetails;
+import io.zeetee.githubsocial.models.GithubRepoReadme;
 import io.zeetee.githubsocial.models.GithubUser;
 import io.zeetee.githubsocial.models.GithubUserDetails;
 import io.zeetee.githubsocial.utils.GSConstants;
@@ -14,8 +15,6 @@ import io.zeetee.githubsocial.utils.GsonHelper;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
-import retrofit2.http.GET;
-import retrofit2.http.Url;
 
 /**
  * By GT.
@@ -64,8 +63,12 @@ public class RestApi {
         return getClient().repos(userName);
     }
 
-    public static Observable<GithubRepoDetails> getRepoDetails(String owner, String repo){
-        return getClient().getRepoDetails(owner, repo);
+    public static Observable<GithubRepoDetails> repoDetails(String owner, String repo){
+        return getClient().repoDetails(owner, repo);
+    }
+
+    public static Observable<GithubRepoReadme> repoReadme(String owner, String repo){
+        return getClient().repoReadme(owner, repo);
     }
 
     public static Observable<List<GithubUser>> stargazer(String repoName, String userName) {

@@ -20,6 +20,28 @@
             android:background="?attr/colorPrimary"
             app:popupTheme="@style/AppTheme.PopupOverlay">
 
+            <Button
+                style="@style/AppTheme.ActionButton"
+                android:text="Follow"
+                android:id="@+id/btn_follow"
+                android:layout_marginRight="16dp"
+                android:layout_gravity="right"
+                android:theme="@style/FollowButtonTheme"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"/>
+
+            <Button
+                android:visibility="gone"
+                style="@style/AppTheme.ActionButton"
+                android:text="Following"
+                android:layout_marginRight="16dp"
+                android:id="@+id/btn_un_follow"
+                android:layout_gravity="right"
+                android:theme="@style/UnFollowButtonTheme"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"/>
+
+
         </android.support.v7.widget.Toolbar>
 
     </android.support.design.widget.AppBarLayout>

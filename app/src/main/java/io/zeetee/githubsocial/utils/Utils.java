@@ -14,6 +14,7 @@ import java.util.List;
 import io.zeetee.githubsocial.models.ErrorResponse;
 import io.zeetee.githubsocial.models.GithubItem;
 import io.zeetee.githubsocial.models.GithubSearchResult;
+import io.zeetee.githubsocial.models.GithubUserDetails;
 import retrofit2.Response;
 
 /**
@@ -23,23 +24,28 @@ public class Utils {
 
     private static final String TAG = Utils.class.getSimpleName();
 
-    public static List<GithubItem> constructHomePage(GithubSearchResult topAndroidRepo, GithubSearchResult mostFollowedAndroidDev){
+    public static List<GithubItem> constructHomePage(GithubSearchResult topAndroidRepo, GithubSearchResult mostFollowedAndroidDev, GithubUserDetails userDetails){
         final int MAX = 5;
         List<GithubItem> retList = new ArrayList<>();
 
         //Combine top 5 Android Repo with top most followed Android dev
         if(topAndroidRepo != null && topAndroidRepo.items != null){
             int upTo = topAndroidRepo.items.size() < MAX ? topAndroidRepo.items.size() : MAX;
-            for (int i = 0 ; i < MAX ; i++){
+            for (int i = 0 ; i < upTo ; i++){
                 retList.add(topAndroidRepo.items.get(i));
             }
         }
         if(mostFollowedAndroidDev != null && mostFollowedAndroidDev.items != null){
             int upTo = mostFollowedAndroidDev.items.size() < MAX ? mostFollowedAndroidDev.items.size() : MAX;
-            for (int i = 0 ; i < MAX ; i++){
+            for (int i = 0 ; i < upTo ; i++){
                 retList.add(mostFollowedAndroidDev.items.get(i));
             }
         }
+
+        if(userDetails != null){
+            retList.add(userDetails);
+        }
+
         return retList;
     }
 

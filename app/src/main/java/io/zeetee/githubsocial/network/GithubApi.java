@@ -34,6 +34,9 @@ public interface GithubApi {
     @GET("/search/users?order=desc&q=Android+language:Java&sort=followers")
     Observable<GithubSearchResult> fetchMostFollowedAndroidDevs(@Header("Authorization") String token);
 
+    @GET("/users/ozeetee")
+    Observable<GithubUserDetails> fetchHomeProfile(@Header("Authorization") String token);
+
     @GET("/user")
     Observable<GithubUserDetails> meProflie(@Header("Authorization") String token);
 

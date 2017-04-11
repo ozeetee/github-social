@@ -171,9 +171,21 @@ public class RestApi {
                         return getClient().fetchMostFollowedAndroidDevs(token);
                     }
                 });
-
-
     }
+
+    public static Observable<GithubUserDetails> fetchHomeProfile(){
+        return UserManager
+                .getSharedInstance()
+                .getTokenForRestCall()
+                .flatMap(new Function<String, ObservableSource<GithubUserDetails>>() {
+                    @Override
+                    public ObservableSource<GithubUserDetails> apply(String token) throws Exception {
+                        token = normalizeToken(token);
+                        return getClient().fetchHomeProfile(token);
+                    }
+                });
+    }
+
 
     public static Observable<GithubUserDetails> user(final String userName){
         return UserManager

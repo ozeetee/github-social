@@ -25,6 +25,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function3;
 import io.reactivex.schedulers.Schedulers;
 import io.zeetee.githubsocial.activities.AbstractBaseActivity;
 import io.zeetee.githubsocial.adapters.GithubItemAdapter;
@@ -32,6 +33,7 @@ import io.zeetee.githubsocial.bus.RxEventBus;
 import io.zeetee.githubsocial.bus.RxEvents;
 import io.zeetee.githubsocial.models.GithubItem;
 import io.zeetee.githubsocial.models.GithubSearchResult;
+import io.zeetee.githubsocial.models.GithubUserDetails;
 import io.zeetee.githubsocial.network.RestApi;
 import io.zeetee.githubsocial.utils.GSConstants;
 import io.zeetee.githubsocial.utils.UserManager;
@@ -169,10 +171,10 @@ public class MainActivity extends AbstractBaseActivity implements NavigationView
     private void fetchHomePage(){
         showScreenLoading();
         Observable
-                .zip(RestApi.fetchTopAndroidRepo(), RestApi.fetchMostFollowedAndroidDevs(), new BiFunction<GithubSearchResult, GithubSearchResult, List<GithubItem>>() {
+                .zip(RestApi.fetchTopAndroidRepo(), RestApi.fetchMostFollowedAndroidDevs(), RestApi.fetchHomeProfile(), new Function3<GithubSearchResult, GithubSearchResult, GithubUserDetails, List<GithubItem>>() {
                     @Override
-                    public List<GithubItem> apply(GithubSearchResult topAndroidRepo, GithubSearchResult mostFollowedAndroidDev) throws Exception {
-                        return Utils.constructHomePage(topAndroidRepo,mostFollowedAndroidDev);
+                    public List<GithubItem> apply(GithubSearchResult topAndroidRepo, GithubSearchResult mostFollowedAndroidDev, GithubUserDetails userDetails) throws Exception {
+                        return Utils.constructHomePage(topAndroidRepo,mostFollowedAndroidDev,userDetails);
                     }
                 })
                 .subscribeOn(Schedulers.newThread())

@@ -53,7 +53,10 @@ public class ProfileActivity extends AbstractPushActivity {
     private View mFollowingFollowerContainer;
     private View mOrgMembersContainer;
 
+    private Button mFollowButton;
+    private Button mUnFollowButton;
 
+    boolean isFollowed = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,8 +78,8 @@ public class ProfileActivity extends AbstractPushActivity {
         mFollowing = (Button) findViewById(R.id.btn_following);
         mMembers = (Button) findViewById(R.id.btn_members);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        mFollowButton = (Button) findViewById(R.id.btn_follow);
+        mUnFollowButton = (Button) findViewById(R.id.btn_un_follow);
 
         if(getSupportActionBar() != null){
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -133,9 +136,32 @@ public class ProfileActivity extends AbstractPushActivity {
             }
         });
 
+        mFollowButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                followUnFollow();
+            }
+        });
 
-
+        mUnFollowButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                followUnFollow();
+            }
+        });
     }
+
+    private void followUnFollow(){
+        isFollowed = !isFollowed;
+        if(isFollowed){
+            mFollowButton.setVisibility(View.GONE);
+            mUnFollowButton.setVisibility(View.VISIBLE);
+        }else{
+            mFollowButton.setVisibility(View.VISIBLE);
+            mUnFollowButton.setVisibility(View.GONE);
+        }
+    }
+
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {

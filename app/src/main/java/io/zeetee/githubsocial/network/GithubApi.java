@@ -24,15 +24,24 @@ import retrofit2.http.Url;
 
 public interface GithubApi {
 
-    @POST("authorizations")
-    Observable<AuthResponse> authorizations(@Body AuthDto authDto);
+    @POST("/authorizations")
+    Observable<AuthResponse> authorizations(@Header("Authorization") String basicAuth, @Body AuthDto authDto);
 
     //For Home Screen
     @GET("/search/repositories?order=desc&q=Android+language:Java&sort=stars")
-    Observable<GithubSearchResult> fetchTopAndroidRepo();
+    Observable<GithubSearchResult> fetchTopAndroidRepo(@Header("Authorization") String token);
 
     @GET("/search/users?order=desc&q=Android+language:Java&sort=followers")
-    Observable<GithubSearchResult> fetchMostFollowedAndroidDevs();
+    Observable<GithubSearchResult> fetchMostFollowedAndroidDevs(@Header("Authorization") String token);
+
+    @GET("/user")
+    Observable<GithubUserDetails> meProflie(@Header("Authorization") String token);
+
+    @GET("/user/starred")
+    Observable<List<GithubRepo>> meStarredRepos(@Header("Authorization") String token);
+
+    @GET("/user/repos")
+    Observable<List<GithubRepo>> meRepos(@Header("Authorization") String token);
 
     @GET("/user/following")
     Observable<List<GithubUser>> meFollowing(@Header("Authorization") String token);
@@ -40,32 +49,33 @@ public interface GithubApi {
     @GET("/user/followers")
     Observable<List<GithubUser>> meFollowers(@Header("Authorization") String token);
 
+
     @GET("/users/{username}/following")
-    Observable<List<GithubUser>> following(@Path("username") String username);
+    Observable<List<GithubUser>> following(@Header("Authorization") String token, @Path("username") String username);
 
     @GET("/users/{username}/followers")
-    Observable<List<GithubUser>> followers(@Path("username") String username);
+    Observable<List<GithubUser>> followers(@Header("Authorization") String token, @Path("username") String username);
 
     @GET("/users/{username}/repos")
-    Observable<List<GithubRepo>> repos(@Path("username") String username);
+    Observable<List<GithubRepo>> repos(@Header("Authorization") String token, @Path("username") String username);
 
     @GET("/users/{username}")
-    Observable<GithubUserDetails> user(@Path("username") String username);
+    Observable<GithubUserDetails> user(@Header("Authorization") String token, @Path("username") String username);
 
     @GET("/repos/{owner}/{repo}")
-    Observable<GithubRepoDetails> repoDetails(@Path("owner") String owner, @Path("repo") String repo);
+    Observable<GithubRepoDetails> repoDetails(@Header("Authorization") String token, @Path("owner") String owner, @Path("repo") String repo);
 
     @GET("/repos/{owner}/{repo}/readme")
-    Observable<GithubRepoReadme> repoReadme(@Path("owner") String owner, @Path("repo") String repo);
+    Observable<GithubRepoReadme> repoReadme(@Header("Authorization") String token, @Path("owner") String owner, @Path("repo") String repo);
 
     @GET("/repos/{owner}/{repo}/watchers")
-    Observable<List<GithubUser>> repoWatchers(@Path("repo") String repo, @Path("owner") String owner);
+    Observable<List<GithubUser>> repoWatchers(@Header("Authorization") String token, @Path("repo") String repo, @Path("owner") String owner);
 
     @GET("/repos/{owner}/{repo}/stargazers")
-    Observable<List<GithubUser>> repoStarGazer(@Path("repo") String repo, @Path("owner") String owner);
+    Observable<List<GithubUser>> repoStarGazer(@Header("Authorization") String token, @Path("repo") String repo, @Path("owner") String owner);
 
     @GET("/orgs/{org}/members")
-    Observable<List<GithubUser>> orgMembers(@Path("org") String org);
+    Observable<List<GithubUser>> orgMembers(@Header("Authorization") String token, @Path("org") String org);
 
 
     // Following generic method won't work

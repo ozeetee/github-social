@@ -15,6 +15,7 @@ import io.reactivex.functions.Consumer;
 import io.zeetee.githubsocial.R;
 import io.zeetee.githubsocial.utils.GSConstants;
 import io.zeetee.githubsocial.utils.IActions;
+import io.zeetee.githubsocial.utils.Utils;
 
 /**
  * By GT.
@@ -22,6 +23,7 @@ import io.zeetee.githubsocial.utils.IActions;
 
 public abstract class AbstractBaseActivity extends AppCompatActivity implements IActions{
 
+    private static final int REQUEST_CODE_LOGIN = 100;
     protected Toolbar mToolbar;
     private View mProgressAndErrorContainer;
     private View mProgressBar;
@@ -63,6 +65,14 @@ public abstract class AbstractBaseActivity extends AppCompatActivity implements 
     public void showUserRepos(String userName){
         Intent intent = new Intent(this, RepoListActivity.class);
         intent.putExtra(GSConstants.USER_NAME, userName);
+        startActivity(intent);
+    }
+
+    @Override
+    public void showStarredRepos() {
+        Intent intent = new Intent(this, RepoListActivity.class);
+        intent.putExtra(GSConstants.USER_NAME, GSConstants.ME);
+        intent.putExtra(GSConstants.STARRED, true);
         startActivity(intent);
     }
 
@@ -114,10 +124,16 @@ public abstract class AbstractBaseActivity extends AppCompatActivity implements 
         showContent();
     }
 
-    protected void showFullScreenError(Throwable throwable){
+    protected void showFullScreenError(String title, String message){
         hideContent();
         mProgressBar.setVisibility(View.GONE);
+        mProgressAndErrorContainer.setVisibility(View.VISIBLE);
         mErrorContainer.setVisibility(View.VISIBLE);
+        mErrorTitle.setText(title);
+        if(message != null) mErrorMessage.setText(message);
+    }
+
+    protected void showFullScreenError(Throwable throwable){
         if(throwable instanceof UnknownHostException){
             //Usually due to not able to connect to internet.
             mErrorTitle.setText(R.string.unable_to_connect);
@@ -125,27 +141,15 @@ public abstract class AbstractBaseActivity extends AppCompatActivity implements 
             return;
         }
 
-        int code = 0 ;
-        String message = null;
-        StringBuilder titleBuilder = new StringBuilder();
+        int code = Utils.getHttpStatusCode(throwable);
+        String message = Utils.getServerErrorMessage(throwable);
+        showFullScreenError("Server Error" + ": " + String.valueOf(code),message);
+    }
 
-        if(throwable instanceof retrofit2.adapter.rxjava2.HttpException){
-            retrofit2.adapter.rxjava2.HttpException httpException = (retrofit2.adapter.rxjava2.HttpException) throwable;
-            code = httpException.code();
-            message = httpException.message();
-        }
-
-
-        if(throwable instanceof retrofit2.HttpException){
-            retrofit2.HttpException httpException = (retrofit2.HttpException) throwable;
-            code = httpException.code();
-            message = httpException.message();
-        }
-
-        titleBuilder.append("Server Error").append(": ").append(String.valueOf(code));
-        mErrorTitle.setText(titleBuilder);
-        if(message != null) mErrorMessage.setText(message);
-
+    @Override
+    public void showLoginScreen() {
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivityForResult(intent, REQUEST_CODE_LOGIN);
     }
 
     public abstract void hideContent();

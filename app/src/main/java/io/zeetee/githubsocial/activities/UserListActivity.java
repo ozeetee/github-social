@@ -1,12 +1,9 @@
 package io.zeetee.githubsocial.activities;
 
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.View;
 
@@ -21,6 +18,7 @@ import io.zeetee.githubsocial.adapters.UserListAdapter;
 import io.zeetee.githubsocial.models.GithubUser;
 import io.zeetee.githubsocial.network.RestApi;
 import io.zeetee.githubsocial.utils.GSConstants;
+import io.zeetee.githubsocial.utils.UserManager;
 
 public class UserListActivity extends AbstractPushActivity {
 
@@ -49,12 +47,34 @@ public class UserListActivity extends AbstractPushActivity {
 //        mRecyclerView.addItemDecoration(dividerItemDecoration);
         userListAdapter = new UserListAdapter(this);
         mRecyclerView.setAdapter(userListAdapter);
-        fetchUserList();
         setListTitle();
+        fetchUserList();
     }
 
     private void fetchUserList(){
-        if(TextUtils.isEmpty(userName)) return;
+        if(TextUtils.isEmpty(userName)) {
+            showFullScreenError("Internal Error","UserName is null");
+            mErrorResolveButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    finish();
+                }
+            });
+            mErrorResolveButton.setText("Go Back");
+            return;
+        }
+
+        if(userName.equalsIgnoreCase(GSConstants.ME) && !UserManager.getSharedInstance().isLoggedIn()){
+            showFullScreenError("Please Login", "You need to login to view " + getScreenTitle());
+            mErrorResolveButton.setText("Login");
+            mErrorResolveButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showLoginScreen();
+                }
+            });
+            return;
+        }
         showScreenLoading();
         Observable<List<GithubUser>> observable = getApiObservable();
         if(observable != null){
@@ -66,11 +86,12 @@ public class UserListActivity extends AbstractPushActivity {
 
 
     private Observable<List<GithubUser>> getApiObservable(){
+        if(userName == null) return null;
         switch (listType){
             case GSConstants.ListType.FOLLOWERS:
-                return RestApi.followers(userName);
+                return userName.equalsIgnoreCase(GSConstants.ME) ? RestApi.meFollowers() :RestApi.followers(userName);
             case GSConstants.ListType.FOLLOWING:
-                return RestApi.following(userName);
+                return userName.equalsIgnoreCase(GSConstants.ME) ? RestApi.meFollowing() :RestApi.following(userName);
             case GSConstants.ListType.STARGAZER:
                 return RestApi.stargazer(repoName, userName);
             case GSConstants.ListType.WATCHERS:
@@ -83,25 +104,30 @@ public class UserListActivity extends AbstractPushActivity {
 
 
     private void setListTitle(){
-        switch (listType){
-            case GSConstants.ListType.FOLLOWERS:
-                setTitle(this.userName + " Followers");
-                break;
-            case GSConstants.ListType.FOLLOWING:
-                setTitle(this.userName + " Following");
-                break;
-            case GSConstants.ListType.STARGAZER:
-                setTitle(this.repoName + " Stargazer");
-                break;
-            case GSConstants.ListType.WATCHERS:
-                setTitle(this.repoName + " Watchers");
-                break;
-            case GSConstants.ListType.ORG_MEMBERS:
-                setTitle(this.userName + " Members");
-                break;
-        }
+        setTitle(getScreenTitle());
     }
 
+    private String getUserNamePrefix(){
+        if(TextUtils.isEmpty(this.userName)) return "";
+        if(this.userName.equalsIgnoreCase(GSConstants.ME)) return "Your ";
+        return this.userName + " ";
+    }
+
+    private String getScreenTitle(){
+        switch (listType){
+            case GSConstants.ListType.FOLLOWERS:
+                return getUserNamePrefix() + " Followers";
+            case GSConstants.ListType.FOLLOWING:
+                return getUserNamePrefix() + " Following";
+            case GSConstants.ListType.STARGAZER:
+                return this.repoName + " Stargazer";
+            case GSConstants.ListType.WATCHERS:
+                return  this.repoName + " Watchers";
+            case GSConstants.ListType.ORG_MEMBERS:
+                return  this.userName + " Members";
+        }
+        return "Users";
+    }
 
     private Consumer<List<GithubUser>> consumer = new Consumer<List<GithubUser>>() {
         @Override

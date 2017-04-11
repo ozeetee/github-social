@@ -1,43 +1,54 @@
 package io.zeetee.githubsocial.activities;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.os.AsyncTask;
+import android.content.Context;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.support.design.widget.Snackbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.util.List;
+
+import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.functions.Function3;
+import io.reactivex.schedulers.Schedulers;
 import io.zeetee.githubsocial.R;
+import io.zeetee.githubsocial.models.GithubRepo;
+import io.zeetee.githubsocial.models.GithubUser;
+import io.zeetee.githubsocial.models.GithubUserDetails;
+import io.zeetee.githubsocial.network.RestApi;
+import io.zeetee.githubsocial.utils.GSConstants;
+import io.zeetee.githubsocial.utils.UserManager;
+import io.zeetee.githubsocial.utils.UserProfileManager;
+import io.zeetee.githubsocial.utils.Utils;
 
-public class LoginActivity extends AppCompatActivity  {
-
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:hello", "bar@example.com:world"
-    };
-
-    private UserLoginTask mAuthTask = null;
+public class LoginActivity extends AbstractPushActivity  {
 
     // UI references.
-    private AutoCompleteTextView mEmailView;
+    private AutoCompleteTextView mGithubLogin;
     private EditText mPasswordView;
-    private View mProgressView;
     private View mLoginFormView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        setupActionBar();
+        if(getSupportActionBar() !=null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         // Set up the login form.
-        mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
+        mGithubLogin = (AutoCompleteTextView) findViewById(R.id.github_login);
         mPasswordView = (EditText) findViewById(R.id.password);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -57,49 +68,41 @@ public class LoginActivity extends AppCompatActivity  {
                 attemptLogin();
             }
         });
-
         mLoginFormView = findViewById(R.id.login_form);
-        mProgressView = findViewById(R.id.login_progress);
     }
 
-
-
-
-    private void setupActionBar() {
-       if(getSupportActionBar() != null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-    }
 
     private void attemptLogin() {
-        if (mAuthTask != null) {
-            return;
-        }
-
         // Reset errors.
-        mEmailView.setError(null);
+        mGithubLogin.setError(null);
         mPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
-        String email = mEmailView.getText().toString();
+        String userName = mGithubLogin.getText().toString();
         String password = mPasswordView.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
 
         // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
+        if(TextUtils.isEmpty(password)){
+            mPasswordView.setError(getString(R.string.error_field_required));
+            focusView = mPasswordView;
+            cancel = true;
+        }else if (!isPasswordValid(password)) {
             mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
             cancel = true;
         }
 
         // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
-            mEmailView.setError(getString(R.string.error_field_required));
-            focusView = mEmailView;
+        if (TextUtils.isEmpty(userName)) {
+            mGithubLogin.setError(getString(R.string.error_field_required));
+            focusView = mGithubLogin;
             cancel = true;
-        } else if (!isEmailValid(email)) {
-            mEmailView.setError(getString(R.string.error_invalid_email));
-            focusView = mEmailView;
+        } else if (!isUserNameValid(userName)) {
+            mGithubLogin.setError(getString(R.string.error_invalid_email));
+            focusView = mGithubLogin;
             cancel = true;
         }
 
@@ -110,95 +113,89 @@ public class LoginActivity extends AppCompatActivity  {
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
-            showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
-            mAuthTask.execute((Void) null);
+            hideKeyboard();
+            doLogin(userName,password);
         }
     }
 
-    private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
-        return email.contains("@");
+    private void hideKeyboard(){
+        // Check if no view has focus:
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+    }
+
+    private void doLogin(final String userName, final String password) {
+        showScreenLoading();
+        RestApi
+                .auth(userName,password)
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .flatMap(new Function<String, ObservableSource<GithubUserDetails>>() {
+                    @Override
+                    public ObservableSource<GithubUserDetails> apply(String token) throws Exception {
+                        //First save the token in Shared pref this is happening in background thread
+                        UserManager.getSharedInstance().userLoggedIn(userName,password,token);
+                        return Observable.zip(RestApi.meProfile(), RestApi.meFollowing(), RestApi.meStarred(), new Function3<GithubUserDetails, List<GithubUser>, List<GithubRepo>, GithubUserDetails>() {
+                            @Override
+                            public GithubUserDetails apply(GithubUserDetails userDetails, List<GithubUser> githubUsers, List<GithubRepo> githubRepos) throws Exception {
+                                //Save this information to
+                                UserProfileManager.getSharedInstance().setUserDetails(userDetails);
+                                UserProfileManager.getSharedInstance().setFollowing(githubUsers);
+                                UserProfileManager.getSharedInstance().setStarredRepo(githubRepos);
+                                return userDetails;
+                            }
+                        });
+                    }
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<GithubUserDetails>() {
+                    @Override
+                    public void accept(GithubUserDetails userDetails) throws Exception {
+                        //User is logged in and profile data is fetched fine.
+                        onPostLoginSuccess();
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        Log.e("GTGT","Error Occured while login");
+                        showLoginError(throwable);
+                    }
+                });
+    }
+
+    private void onPostLoginSuccess(){
+        setResult(GSConstants.LOGIN_SUCCESS);
+        finish();
+    }
+
+    private void showLoginError(Throwable throwable){
+        showScreenContent();
+        int code = Utils.getHttpStatusCode(throwable);
+        String serverMessage = Utils.getServerErrorMessage(throwable);
+        Snackbar.make(mLoginFormView,serverMessage,Snackbar.LENGTH_LONG).show();
+    }
+
+
+    private boolean isUserNameValid(String email) {
+        return true;//  email.contains("@");
     }
 
     private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
-        return password.length() > 4;
+        return password.length() > 2;
     }
 
-    private void showProgress(final boolean show) {
-        int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
-        mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-        mLoginFormView.animate().setDuration(shortAnimTime).alpha(
-                show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-            }
-        });
-
-        mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-        mProgressView.animate().setDuration(shortAnimTime).alpha(
-                show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            }
-        });
+    @Override
+    public void hideContent() {
+        mLoginFormView.setVisibility(View.GONE);
     }
 
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
-
-        private final String mEmail;
-        private final String mPassword;
-
-        UserLoginTask(String email, String password) {
-            mEmail = email;
-            mPassword = password;
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
-
-            try {
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                return false;
-            }
-
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
-                }
-            }
-
-            // TODO: register the new account here.
-            return true;
-        }
-
-        @Override
-        protected void onPostExecute(final Boolean success) {
-            mAuthTask = null;
-            showProgress(false);
-
-            if (success) {
-                finish();
-            } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
-            }
-        }
-
-        @Override
-        protected void onCancelled() {
-            mAuthTask = null;
-            showProgress(false);
-        }
+    @Override
+    public void showContent() {
+        mLoginFormView.setVisibility(View.VISIBLE);
     }
 }
 

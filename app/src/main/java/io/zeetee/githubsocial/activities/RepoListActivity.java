@@ -11,14 +11,17 @@ import android.view.View;
 
 import java.util.List;
 
+import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import io.zeetee.githubsocial.R;
 import io.zeetee.githubsocial.adapters.RepoListAdapter;
 import io.zeetee.githubsocial.models.GithubRepo;
+import io.zeetee.githubsocial.models.GithubUser;
 import io.zeetee.githubsocial.network.RestApi;
 import io.zeetee.githubsocial.utils.GSConstants;
+import io.zeetee.githubsocial.utils.UserManager;
 import io.zeetee.githubsocial.utils.VerticalSpaceItemDecoration;
 
 /**
@@ -30,7 +33,7 @@ public class RepoListActivity extends AbstractPushActivity {
     private RecyclerView mRecyclerView;
     private RepoListAdapter repoListAdapter;
     private String userName;
-
+    private boolean starred;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,9 +42,10 @@ public class RepoListActivity extends AbstractPushActivity {
 
         if(getIntent() != null){
             if(getIntent().getStringExtra(GSConstants.USER_NAME) != null) this.userName = getIntent().getStringExtra(GSConstants.USER_NAME);
+            this.starred = getIntent().getBooleanExtra(GSConstants.STARRED,false);
         }
 
-        setTitle(this.userName + " repos");
+        setTitle(getScreenTitle());
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false));
@@ -55,22 +59,72 @@ public class RepoListActivity extends AbstractPushActivity {
         repoListAdapter = new RepoListAdapter(this);
         mRecyclerView.setAdapter(repoListAdapter);
         fetchRepos();
+
+    }
+
+    private void fetchRepos(){
+        if(TextUtils.isEmpty(userName)) {
+            showFullScreenError("Internal Error","UserName is null");
+            mErrorResolveButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    finish();
+                }
+            });
+            mErrorResolveButton.setText("Go Back");
+            return;
+        }
+
+        if(userName.equalsIgnoreCase(GSConstants.ME) && !UserManager.getSharedInstance().isLoggedIn()){
+            showFullScreenError("Please Login", "You need to login to view " + getScreenTitle());
+            mErrorResolveButton.setText("Login");
+            mErrorResolveButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showLoginScreen();
+                }
+            });
+            return;
+        }
+
         mErrorResolveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 fetchRepos();
             }
         });
-    }
 
-    private void fetchRepos(){
-        if(TextUtils.isEmpty(userName)) return;
+
+
+        Observable<List<GithubRepo>> observable = getApiObservable();
+
+        if(observable == null){
+            showFullScreenError("Internal Error","UserName is null");
+            mErrorResolveButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    finish();
+                }
+            });
+            mErrorResolveButton.setText("Go Back");
+            return;
+        }
         showScreenLoading();
-        RestApi.repos(userName)
+        observable
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(consumer,fullScreenErrorConsumer);
 
+    }
+
+    private Observable<List<GithubRepo>> getApiObservable(){
+        if(userName == null) return null;
+
+        if(userName.equalsIgnoreCase(GSConstants.ME)){
+            if(starred) return RestApi.meStarred();
+            return RestApi.meRepos();
+        }
+        return RestApi.repos(userName);
     }
 
 
@@ -81,6 +135,18 @@ public class RepoListActivity extends AbstractPushActivity {
             repoListAdapter.setRepos(githubRepos);
         }
     };
+
+
+    private String getScreenTitle(){
+        if(starred){
+            return "Starred Repos";
+        }
+        if(this.userName != null && this.userName.equalsIgnoreCase(GSConstants.ME)){
+            return "Your Repos";
+        }
+
+        return this.userName == null ? "Repos" : this.userName + " repos";
+    }
 
     @Override
     public void hideContent() {

@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 import io.zeetee.githubsocial.network.RequestInterceptor;
 import io.zeetee.githubsocial.utils.GSConstants;
 import io.zeetee.githubsocial.utils.UserManager;
+import io.zeetee.githubsocial.utils.UserProfileManager;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 
@@ -29,7 +30,7 @@ public class GSApp extends Application {
         super.onCreate();
         currentInstance = this;
         Fresco.initialize(this);
-        UserManager.getSharedInstance().initialize(); // Initialize User Manager
+        UserProfileManager.getSharedInstance().fetchUserInformationSilently();
     }
 
     public static GSApp getCurrentInstance(){

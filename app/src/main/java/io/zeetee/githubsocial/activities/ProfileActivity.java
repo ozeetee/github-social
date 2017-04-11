@@ -95,7 +95,7 @@ public class ProfileActivity extends AbstractPushActivity {
 
         if(userName == null){
             //Error Condition
-            Log.e(TAG,"Error userName and User Details are null");
+            Log.e(TAG,"Error userName and AppUser Details are null");
             finish();
             return;
         }

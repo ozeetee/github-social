@@ -8,5 +8,7 @@ public interface IActions {
     void showUserList(int userListType, String userName);
     void showUserList(int userListType, String repoName, String ownerUserName);
     void showUserRepos(String userName);
+    void showStarredRepos();
     void showRepoDetails(String repoName, String repoOwner);
+    void showLoginScreen();
 }

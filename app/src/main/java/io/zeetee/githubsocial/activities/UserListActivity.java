@@ -43,8 +43,6 @@ public class UserListActivity extends AbstractPushActivity {
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false));
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
-//        mRecyclerView.addItemDecoration(dividerItemDecoration);
         userListAdapter = new UserListAdapter(this);
         mRecyclerView.setAdapter(userListAdapter);
         setListTitle();

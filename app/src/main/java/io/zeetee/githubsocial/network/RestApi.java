@@ -288,7 +288,7 @@ public class RestApi {
                     @Override
                     public ObservableSource<List<GithubUser>> apply(String token) throws Exception {
                         token = normalizeToken(token);
-                        return getClient().orgMembers(org,token);
+                        return getClient().orgMembers(token,org);
                     }
                 });
     }

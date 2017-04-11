@@ -42,5 +42,17 @@
         android:theme="@style/FollowButtonTheme"
         android:layout_width="wrap_content"
         android:layout_height="38dp"/>
+    
+    <Button
+        android:visibility="gone"
+        style="@style/AppTheme.ActionButton"
+        android:text="Following"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:id="@+id/btn_un_follow"
+        android:layout_gravity="right"
+        android:theme="@style/UnFollowButtonTheme"
+        android:layout_width="wrap_content"
+        android:layout_height="38dp"/>
 
 </RelativeLayout>

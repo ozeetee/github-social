@@ -1,8 +1,11 @@
 package io.zeetee.githubsocial.utils;
 
+import android.text.TextUtils;
 import android.util.Log;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
@@ -22,8 +25,9 @@ public class UserProfileManager {
 
     private static volatile UserProfileManager sharedInstance;
     private GithubUserDetails userDetails;
-    private List<GithubUser> following;
-    private List<GithubRepo> starredRepo;
+    private Map<String,GithubUser> followingMap;
+    private Map<String,GithubRepo> starredRepoMap;
+
 
     public static UserProfileManager getSharedInstance() {
         if(sharedInstance == null){
@@ -104,12 +108,24 @@ public class UserProfileManager {
     }
 
     public synchronized void setFollowing(List<GithubUser> following) {
-        this.following = following;
+        followingMap = new HashMap<>();
+        if(following != null){
+            for (GithubUser user : following) {
+                if(user == null || TextUtils.isEmpty(user.login)) continue;
+                followingMap.put(user.login, user);
+            }
+        }
         RxEventBus.getInstance().post(new RxEvents.UserFollowingListLoadedEvent());
     }
 
     public synchronized void setStarredRepo(List<GithubRepo> starredRepo) {
-        this.starredRepo = starredRepo;
+        starredRepoMap = new HashMap<>();
+        if(starredRepo != null){
+            for (GithubRepo repo : starredRepo) {
+                if(repo == null || TextUtils.isEmpty(repo.full_name)) continue;
+                starredRepoMap.put(repo.full_name, repo);
+            }
+        }
         RxEventBus.getInstance().post(new RxEvents.StarredRepoLoadedEvent());
     }
 
@@ -121,5 +137,14 @@ public class UserProfileManager {
         setUserDetails(null);
         setFollowing(null);
         setStarredRepo(null);
+    }
+
+
+    public boolean isFollowing(String userName){
+       return userName != null && followingMap != null && followingMap.get(userName) != null;
+    }
+
+    public boolean isStarred(String repoFullName){
+        return repoFullName != null && starredRepoMap != null && starredRepoMap.get(repoFullName) != null;
     }
 }

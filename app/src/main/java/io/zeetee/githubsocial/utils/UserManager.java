@@ -133,4 +133,8 @@ public class UserManager {
         return (appUser == null || appUser.userName == null) ? null : appUser.userName;
     }
 
+    public boolean isMe(String userName){
+        return appUser != null && appUser.userName != null && appUser.userName.equalsIgnoreCase(userName);
+    }
+
 }

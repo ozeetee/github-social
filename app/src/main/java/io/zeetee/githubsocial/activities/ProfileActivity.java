@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
 
+import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
@@ -25,6 +26,7 @@ import io.zeetee.githubsocial.network.RestApi;
 import io.zeetee.githubsocial.utils.ColorDrawableHelper;
 import io.zeetee.githubsocial.utils.GSConstants;
 import io.zeetee.githubsocial.utils.LinkSpan;
+import io.zeetee.githubsocial.utils.UserManager;
 
 public class ProfileActivity extends AbstractPushActivity {
 
@@ -101,7 +103,6 @@ public class ProfileActivity extends AbstractPushActivity {
         }
 
         setTitle(userName);
-
         fetchUserDetails(userName);
         mRepos = (Button) findViewById(R.id.btn_repos);
         mGists = (Button) findViewById(R.id.btn_gits);
@@ -131,6 +132,9 @@ public class ProfileActivity extends AbstractPushActivity {
                 showUserList(GSConstants.ListType.ORG_MEMBERS, userName);
             }
         });
+
+
+
     }
 
     @Override
@@ -142,8 +146,35 @@ public class ProfileActivity extends AbstractPushActivity {
 
 
     private void fetchUserDetails(String userName){
+        if(TextUtils.isEmpty(userName)) {
+            showFullScreenError("Internal Error","UserName is null");
+            mErrorResolveButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    finish();
+                }
+            });
+            mErrorResolveButton.setText("Go Back");
+            return;
+        }
+
+        if(userName.equalsIgnoreCase(GSConstants.ME) && !UserManager.getSharedInstance().isLoggedIn()){
+            showFullScreenError("Please Login", "You need to login to view your profile");
+            mErrorResolveButton.setText("Login");
+            mErrorResolveButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showLoginScreen();
+                }
+            });
+            return;
+        }
+
         showScreenLoading();
-        RestApi.user(userName)
+        Observable<GithubUserDetails> observable = getApiObservable();
+        if(observable == null) return;
+
+        observable
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<GithubUserDetails>() {
@@ -154,6 +185,13 @@ public class ProfileActivity extends AbstractPushActivity {
                     }
                 }, throwableConsumer);
     }
+
+    private Observable<GithubUserDetails> getApiObservable(){
+        if(userName == null) return null;
+        if(userName.equalsIgnoreCase(GSConstants.ME)) return RestApi.meProfile();
+        return RestApi.user(userName);
+    }
+
 
     private void initUI(){
         showScreenContent();

@@ -97,7 +97,19 @@ public class MainActivity extends AbstractBaseActivity implements NavigationView
 
         initLoginButton();
         initAvatar();
+        mUserMessage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onUserClicked(GSConstants.ME);
+            }
+        });
 
+        mLoggedInUserImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onUserClicked(GSConstants.ME);
+            }
+        });
 
     }
 
@@ -129,7 +141,6 @@ public class MainActivity extends AbstractBaseActivity implements NavigationView
 
     private void initAvatar(){
         String avatarUrl = UserProfileManager.getSharedInstance().getAavatarUrl();
-        Log.d("GTGT","Avarar URL " + avatarUrl);
         mLoggedInUserImage.setImageURI(avatarUrl);
     }
 

@@ -21,6 +21,7 @@
         android:layout_height="wrap_content">
 
         <com.facebook.drawee.view.SimpleDraweeView
+            android:clickable="true"
             android:id="@+id/logged_in_user_image"
             fresco:placeholderImage="@drawable/ic_account"
             fresco:placeholderImageScaleType="center"
@@ -30,6 +31,7 @@
             android:layout_height="60dp" />
 
         <TextView
+            android:clickable="true"
             android:id="@+id/logged_in_user_name"
             android:layout_marginLeft="8dp"
             android:layout_width="wrap_content"

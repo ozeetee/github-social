@@ -16,6 +16,7 @@ import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 import retrofit2.http.Url;
 
 /**
@@ -41,26 +42,26 @@ public interface GithubApi {
     Observable<GithubUserDetails> meProflie(@Header("Authorization") String token);
 
     @GET("/user/starred")
-    Observable<List<GithubRepo>> meStarredRepos(@Header("Authorization") String token);
+    Observable<List<GithubRepo>> meStarredRepos(@Header("Authorization") String token, @Query("page") int page, @Query("per_page") int perPage);
 
     @GET("/user/repos")
-    Observable<List<GithubRepo>> meRepos(@Header("Authorization") String token);
+    Observable<List<GithubRepo>> meRepos(@Header("Authorization") String token, @Query("page") int page, @Query("per_page") int perPage);
 
     @GET("/user/following")
-    Observable<List<GithubUser>> meFollowing(@Header("Authorization") String token);
+    Observable<List<GithubUser>> meFollowing(@Header("Authorization") String token, @Query("page") int page, @Query("per_page") int perPage);
 
     @GET("/user/followers")
-    Observable<List<GithubUser>> meFollowers(@Header("Authorization") String token);
+    Observable<List<GithubUser>> meFollowers(@Header("Authorization") String token, @Query("page") int page, @Query("per_page") int perPage);
 
 
     @GET("/users/{username}/following")
-    Observable<List<GithubUser>> following(@Header("Authorization") String token, @Path("username") String username);
+    Observable<List<GithubUser>> following(@Header("Authorization") String token, @Path("username") String username, @Query("page") int page, @Query("per_page") int perPage);
 
     @GET("/users/{username}/followers")
-    Observable<List<GithubUser>> followers(@Header("Authorization") String token, @Path("username") String username);
+    Observable<List<GithubUser>> followers(@Header("Authorization") String token, @Path("username") String username, @Query("page") int page, @Query("per_page") int perPage);
 
     @GET("/users/{username}/repos")
-    Observable<List<GithubRepo>> repos(@Header("Authorization") String token, @Path("username") String username);
+    Observable<List<GithubRepo>> repos(@Header("Authorization") String token, @Path("username") String username, @Query("page") int page, @Query("per_page") int perPage);
 
     @GET("/users/{username}")
     Observable<GithubUserDetails> user(@Header("Authorization") String token, @Path("username") String username);
@@ -72,13 +73,13 @@ public interface GithubApi {
     Observable<GithubRepoReadme> repoReadme(@Header("Authorization") String token, @Path("owner") String owner, @Path("repo") String repo);
 
     @GET("/repos/{owner}/{repo}/watchers")
-    Observable<List<GithubUser>> repoWatchers(@Header("Authorization") String token, @Path("repo") String repo, @Path("owner") String owner);
+    Observable<List<GithubUser>> repoWatchers(@Header("Authorization") String token, @Path("repo") String repo, @Path("owner") String owner, @Query("page") int page, @Query("per_page") int perPage);
 
     @GET("/repos/{owner}/{repo}/stargazers")
-    Observable<List<GithubUser>> repoStarGazer(@Header("Authorization") String token, @Path("repo") String repo, @Path("owner") String owner);
+    Observable<List<GithubUser>> repoStarGazer(@Header("Authorization") String token, @Path("repo") String repo, @Path("owner") String owner, @Query("page") int page, @Query("per_page") int perPage);
 
     @GET("/orgs/{org}/members")
-    Observable<List<GithubUser>> orgMembers(@Header("Authorization") String token, @Path("org") String org);
+    Observable<List<GithubUser>> orgMembers(@Header("Authorization") String token, @Path("org") String org, @Query("page") int page, @Query("per_page") int perPage);
 
 
     // Following generic method won't work

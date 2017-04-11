@@ -46,4 +46,13 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListViewHolder> {
         this.users = githubUsers == null ? new ArrayList<GithubUser>(0): githubUsers;
         notifyDataSetChanged();
     }
+
+    public void addUsers(List<GithubUser> githubUsers){
+        if(githubUsers == null || githubUsers.isEmpty()) return;
+        if(this.users == null) this.users = new ArrayList<>();
+        int positionStart = this.users.size();
+        int itemCount = githubUsers.size();
+        this.users.addAll(githubUsers);
+        notifyItemRangeInserted(positionStart,itemCount);
+    }
 }

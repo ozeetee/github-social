@@ -18,6 +18,8 @@ public interface GSConstants {
     int LOGIN_SUCCESS = 101;
     String STARRED = "STARRED";
 
+    int PER_PAGE = 100;
+    int THRESHOLD = 10;
 
     interface Github{
         String API_BASE_URL = "https://api.github.com";

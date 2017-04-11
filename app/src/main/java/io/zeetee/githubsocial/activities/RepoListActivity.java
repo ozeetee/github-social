@@ -28,12 +28,13 @@ import io.zeetee.githubsocial.utils.VerticalSpaceItemDecoration;
  * By GT.
  *
  */
-public class RepoListActivity extends AbstractPushActivity {
+public class RepoListActivity extends AbstractListActivity {
 
     private RecyclerView mRecyclerView;
     private RepoListAdapter repoListAdapter;
     private String userName;
     private boolean starred;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,21 +49,21 @@ public class RepoListActivity extends AbstractPushActivity {
         setTitle(getScreenTitle());
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false));
-
+        mRecyclerView.addOnScrollListener(onScrollListener);
+        layoutManager = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false);
+        mRecyclerView.setLayoutManager(layoutManager);
         int verticalSpacing = getResources().getDimensionPixelSize(R.dimen.item_vertical_spacing);
         VerticalSpaceItemDecoration verticalSpaceItemDecoration = new VerticalSpaceItemDecoration(verticalSpacing);
         mRecyclerView.addItemDecoration(verticalSpaceItemDecoration);
-
-//        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
-//        mRecyclerView.addItemDecoration(dividerItemDecoration);
         repoListAdapter = new RepoListAdapter(this);
         mRecyclerView.setAdapter(repoListAdapter);
-        fetchRepos();
-
+        if(validateActivity()){
+            fetchList();
+        }
     }
 
-    private void fetchRepos(){
+
+    private boolean validateActivity(){
         if(TextUtils.isEmpty(userName)) {
             showFullScreenError("Internal Error","UserName is null");
             mErrorResolveButton.setOnClickListener(new View.OnClickListener() {
@@ -72,7 +73,7 @@ public class RepoListActivity extends AbstractPushActivity {
                 }
             });
             mErrorResolveButton.setText("Go Back");
-            return;
+            return false;
         }
 
         if(userName.equalsIgnoreCase(GSConstants.ME) && !UserManager.getSharedInstance().isLoggedIn()){
@@ -84,17 +85,22 @@ public class RepoListActivity extends AbstractPushActivity {
                     showLoginScreen();
                 }
             });
-            return;
+            return false;
         }
+        return true;
+    }
 
-        mErrorResolveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                fetchRepos();
-            }
-        });
-
-
+    protected void fetchList(){
+        isLoading = true;
+        if(page == 1){
+            showScreenLoading();
+            mErrorResolveButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    fetchList();
+                }
+            });
+        }
 
         Observable<List<GithubRepo>> observable = getApiObservable();
 
@@ -109,7 +115,6 @@ public class RepoListActivity extends AbstractPushActivity {
             mErrorResolveButton.setText("Go Back");
             return;
         }
-        showScreenLoading();
         observable
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -121,18 +126,26 @@ public class RepoListActivity extends AbstractPushActivity {
         if(userName == null) return null;
 
         if(userName.equalsIgnoreCase(GSConstants.ME)){
-            if(starred) return RestApi.meStarred();
-            return RestApi.meRepos();
+            if(starred) return RestApi.meStarred(page,GSConstants.PER_PAGE);
+            return RestApi.meRepos(page,GSConstants.PER_PAGE);
         }
-        return RestApi.repos(userName);
+        return RestApi.repos(userName,page,GSConstants.PER_PAGE);
     }
 
 
     private Consumer<List<GithubRepo>> consumer = new Consumer<List<GithubRepo>>() {
         @Override
         public void accept(List<GithubRepo> githubRepos) throws Exception {
-            showScreenContent();
-            repoListAdapter.setRepos(githubRepos);
+            isLoading = false;
+            if(page == 1){
+                showScreenContent();
+            }
+            if(githubRepos == null || githubRepos.isEmpty()){
+                isMorePage = false;
+                return;
+            }
+            repoListAdapter.addRepos(githubRepos);
+            page++;
         }
     };
 

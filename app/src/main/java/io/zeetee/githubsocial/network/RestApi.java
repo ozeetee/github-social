@@ -84,7 +84,7 @@ public class RestApi {
                 }).doOnError(on401Error);
     }
 
-    public static Observable<List<GithubUser>> meFollowing(){
+    public static Observable<List<GithubUser>> meFollowing(final int page, final int perPage){
         return UserManager
                 .getSharedInstance()
                 .getTokenForRestCall()
@@ -92,12 +92,12 @@ public class RestApi {
                     @Override
                     public ObservableSource<List<GithubUser>> apply(String token) throws Exception {
                         token = normalizeToken(token);
-                        return getClient().meFollowing(token);
+                        return getClient().meFollowing(token,page, perPage);
                     }
                 }).doOnError(on401Error);
     }
 
-    public static Observable<List<GithubUser>> meFollowers(){
+    public static Observable<List<GithubUser>> meFollowers(final int page, final int perPage){
         return UserManager
                 .getSharedInstance()
                 .getTokenForRestCall()
@@ -105,12 +105,12 @@ public class RestApi {
                     @Override
                     public ObservableSource<List<GithubUser>> apply(String token) throws Exception {
                         token = normalizeToken(token);
-                        return getClient().meFollowers(token);
+                        return getClient().meFollowers(token,page,perPage);
                     }
                 }).doOnError(on401Error);
     }
 
-    public static Observable<List<GithubRepo>> meStarred(){
+    public static Observable<List<GithubRepo>> meStarred(final int page, final int perPage){
         return UserManager
                 .getSharedInstance()
                 .getTokenForRestCall()
@@ -118,12 +118,12 @@ public class RestApi {
                     @Override
                     public ObservableSource<List<GithubRepo>> apply(String token) throws Exception {
                         token = normalizeToken(token);
-                        return getClient().meStarredRepos(token);
+                        return getClient().meStarredRepos(token,page,perPage);
                     }
                 }).doOnError(on401Error);
     }
 
-    public static Observable<List<GithubRepo>> meRepos() {
+    public static Observable<List<GithubRepo>> meRepos(final int page, final int perPage) {
         return UserManager
                 .getSharedInstance()
                 .getTokenForRestCall()
@@ -131,7 +131,7 @@ public class RestApi {
                     @Override
                     public ObservableSource<List<GithubRepo>> apply(String token) throws Exception {
                         token = normalizeToken(token);
-                        return getClient().meRepos(token);
+                        return getClient().meRepos(token,page,perPage);
                     }
                 }).doOnError(on401Error);
     }
@@ -200,7 +200,7 @@ public class RestApi {
                 });
     }
 
-    public static Observable<List<GithubUser>> following(final String userName){
+    public static Observable<List<GithubUser>> following(final String userName, final int page, final int perPage){
         return UserManager
                 .getSharedInstance()
                 .getTokenForRestCall()
@@ -208,12 +208,12 @@ public class RestApi {
                     @Override
                     public ObservableSource<List<GithubUser>> apply(String token) throws Exception {
                         token = normalizeToken(token);
-                        return getClient().following(token,userName);
+                        return getClient().following(token,userName,page,perPage);
                     }
                 });
     }
 
-    public static Observable<List<GithubUser>> followers(final String userName){
+    public static Observable<List<GithubUser>> followers(final String userName, final int page, final int perPage){
         return UserManager
                 .getSharedInstance()
                 .getTokenForRestCall()
@@ -221,12 +221,12 @@ public class RestApi {
                     @Override
                     public ObservableSource<List<GithubUser>> apply(String token) throws Exception {
                         token = normalizeToken(token);
-                        return getClient().followers(token,userName);
+                        return getClient().followers(token,userName,page,perPage);
                     }
                 });
     }
 
-    public static Observable<List<GithubRepo>> repos(final String userName){
+    public static Observable<List<GithubRepo>> repos(final String userName, final int page, final int perPage){
         return UserManager
                 .getSharedInstance()
                 .getTokenForRestCall()
@@ -234,7 +234,7 @@ public class RestApi {
                     @Override
                     public ObservableSource<List<GithubRepo>> apply(String token) throws Exception {
                         token = normalizeToken(token);
-                        return getClient().repos(token, userName);
+                        return getClient().repos(token, userName,page,perPage);
                     }
                 });
     }
@@ -266,7 +266,7 @@ public class RestApi {
 
     }
 
-    public static Observable<List<GithubUser>> stargazer(final String repoName, final String userName) {
+    public static Observable<List<GithubUser>> stargazer(final String repoName, final String userName, final int page, final int perPage) {
         return UserManager
                 .getSharedInstance()
                 .getTokenForRestCall()
@@ -274,12 +274,12 @@ public class RestApi {
                     @Override
                     public ObservableSource<List<GithubUser>> apply(String token) throws Exception {
                         token = normalizeToken(token);
-                        return getClient().repoStarGazer(token, repoName,userName);
+                        return getClient().repoStarGazer(token, repoName,userName,page,perPage);
                     }
                 });
     }
 
-    public static Observable<List<GithubUser>> watchers(final String repoName, final String userName) {
+    public static Observable<List<GithubUser>> watchers(final String repoName, final String userName, final int page, final int perPage) {
         return UserManager
                 .getSharedInstance()
                 .getTokenForRestCall()
@@ -287,12 +287,12 @@ public class RestApi {
                     @Override
                     public ObservableSource<List<GithubUser>> apply(String token) throws Exception {
                         token = normalizeToken(token);
-                        return getClient().repoWatchers(token, repoName,userName);
+                        return getClient().repoWatchers(token, repoName,userName,page,perPage);
                     }
                 });
     }
 
-    public static Observable<List<GithubUser>> orgMembers(final String org){
+    public static Observable<List<GithubUser>> orgMembers(final String org, final int page, final int perPage){
         return UserManager
                 .getSharedInstance()
                 .getTokenForRestCall()
@@ -300,7 +300,7 @@ public class RestApi {
                     @Override
                     public ObservableSource<List<GithubUser>> apply(String token) throws Exception {
                         token = normalizeToken(token);
-                        return getClient().orgMembers(token,org);
+                        return getClient().orgMembers(token,org, page, perPage);
                     }
                 });
     }

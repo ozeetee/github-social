@@ -68,7 +68,7 @@ public class UserProfileManager {
 
     private void fetchFollowingSilently(){
         RestApi
-                .meFollowing()
+                .meFollowing(0, GSConstants.PER_PAGE)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<List<GithubUser>>() {
@@ -82,7 +82,7 @@ public class UserProfileManager {
 
     private void fetchStarredRepoSilently(){
         RestApi
-                .meStarred()
+                .meStarred(0, GSConstants.PER_PAGE)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<List<GithubRepo>>() {

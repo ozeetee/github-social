@@ -1,7 +1,6 @@
 package io.zeetee.githubsocial.activities;
 
 import android.os.Bundle;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -20,13 +19,15 @@ import io.zeetee.githubsocial.network.RestApi;
 import io.zeetee.githubsocial.utils.GSConstants;
 import io.zeetee.githubsocial.utils.UserManager;
 
-public class UserListActivity extends AbstractPushActivity {
+public class UserListActivity extends AbstractListActivity {
 
     private RecyclerView mRecyclerView;
+
     private UserListAdapter userListAdapter;
     private String userName;
     private int listType;
     private String repoName;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,14 +43,18 @@ public class UserListActivity extends AbstractPushActivity {
         }
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false));
+        mRecyclerView.addOnScrollListener(onScrollListener);
+        layoutManager = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false);
+        mRecyclerView.setLayoutManager(layoutManager);
         userListAdapter = new UserListAdapter(this);
         mRecyclerView.setAdapter(userListAdapter);
         setListTitle();
-        fetchUserList();
+        if(validateActivity()){
+            fetchList();
+        }
     }
 
-    private void fetchUserList(){
+    private boolean validateActivity(){
         if(TextUtils.isEmpty(userName)) {
             showFullScreenError("Internal Error","UserName is null");
             mErrorResolveButton.setOnClickListener(new View.OnClickListener() {
@@ -59,7 +64,7 @@ public class UserListActivity extends AbstractPushActivity {
                 }
             });
             mErrorResolveButton.setText("Go Back");
-            return;
+            return false;
         }
 
         if(userName.equalsIgnoreCase(GSConstants.ME) && !UserManager.getSharedInstance().isLoggedIn()){
@@ -71,15 +76,29 @@ public class UserListActivity extends AbstractPushActivity {
                     showLoginScreen();
                 }
             });
+            return false;
+        }
+        return true;
+    }
+
+    protected void fetchList(){
+        isLoading = true;
+        if(page == 1) showScreenLoading();
+        Observable<List<GithubUser>> observable = getApiObservable();
+        if(observable == null){
+            showFullScreenError("Internal Error","UserName is null");
+            mErrorResolveButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    finish();
+                }
+            });
+            mErrorResolveButton.setText("Go Back");
             return;
         }
-        showScreenLoading();
-        Observable<List<GithubUser>> observable = getApiObservable();
-        if(observable != null){
-            observable.subscribeOn(Schedulers.newThread())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(consumer,fullScreenErrorConsumer);
-        }
+        observable.subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(consumer,fullScreenErrorConsumer);
     }
 
 
@@ -87,15 +106,15 @@ public class UserListActivity extends AbstractPushActivity {
         if(userName == null) return null;
         switch (listType){
             case GSConstants.ListType.FOLLOWERS:
-                return userName.equalsIgnoreCase(GSConstants.ME) ? RestApi.meFollowers() :RestApi.followers(userName);
+                return userName.equalsIgnoreCase(GSConstants.ME) ? RestApi.meFollowers(page, GSConstants.PER_PAGE) :RestApi.followers(userName, page, GSConstants.PER_PAGE);
             case GSConstants.ListType.FOLLOWING:
-                return userName.equalsIgnoreCase(GSConstants.ME) ? RestApi.meFollowing() :RestApi.following(userName);
+                return userName.equalsIgnoreCase(GSConstants.ME) ? RestApi.meFollowing(page, GSConstants.PER_PAGE) :RestApi.following(userName, page, GSConstants.PER_PAGE);
             case GSConstants.ListType.STARGAZER:
-                return RestApi.stargazer(repoName, userName);
+                return RestApi.stargazer(repoName, userName, page, GSConstants.PER_PAGE);
             case GSConstants.ListType.WATCHERS:
-                return RestApi.watchers(repoName, userName);
+                return RestApi.watchers(repoName, userName, page, GSConstants.PER_PAGE);
             case GSConstants.ListType.ORG_MEMBERS:
-                return RestApi.orgMembers(userName);
+                return RestApi.orgMembers(userName, page, GSConstants.PER_PAGE);
         }
         return null;
     }
@@ -130,10 +149,22 @@ public class UserListActivity extends AbstractPushActivity {
     private Consumer<List<GithubUser>> consumer = new Consumer<List<GithubUser>>() {
         @Override
         public void accept(List<GithubUser> githubUsers) throws Exception {
-            showScreenContent();
-            userListAdapter.setUsers(githubUsers);
+            isLoading = false;
+            if(page == 1){
+                showScreenContent();
+            }
+            if(githubUsers == null || githubUsers.isEmpty()){
+                isMorePage = false;
+                return;
+            }
+            userListAdapter.addUsers(githubUsers);
+            page++;
         }
     };
+
+
+
+
 
     @Override
     public void hideContent() {

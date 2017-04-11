@@ -138,7 +138,7 @@ public class LoginActivity extends AbstractPushActivity  {
                     public ObservableSource<GithubUserDetails> apply(String token) throws Exception {
                         //First save the token in Shared pref this is happening in background thread
                         UserManager.getSharedInstance().userLoggedIn(userName,password,token);
-                        return Observable.zip(RestApi.meProfile(), RestApi.meFollowing(), RestApi.meStarred(), new Function3<GithubUserDetails, List<GithubUser>, List<GithubRepo>, GithubUserDetails>() {
+                        return Observable.zip(RestApi.meProfile(), RestApi.meFollowing(0,GSConstants.PER_PAGE), RestApi.meStarred(0,GSConstants.PER_PAGE), new Function3<GithubUserDetails, List<GithubUser>, List<GithubRepo>, GithubUserDetails>() {
                             @Override
                             public GithubUserDetails apply(GithubUserDetails userDetails, List<GithubUser> githubUsers, List<GithubRepo> githubRepos) throws Exception {
                                 //Save this information to

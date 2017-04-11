@@ -46,4 +46,16 @@ public class RepoListAdapter extends RecyclerView.Adapter<RepoCardViewHolder>{
     public int getItemCount() {
         return repos.size();
     }
+
+    public void addRepos(List<GithubRepo> githubRepos) {
+        if(githubRepos == null || githubRepos.isEmpty()) return;
+
+        if(this.repos == null) this.repos = new ArrayList<>();
+
+        int positionStart = this.repos.size();
+        int itemCount = githubRepos.size();
+
+        this.repos.addAll(githubRepos);
+        notifyItemRangeInserted(positionStart,itemCount);
+    }
 }

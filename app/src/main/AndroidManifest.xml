@@ -24,10 +24,17 @@
             android:name=".activities.LoginActivity"
             android:theme="@style/AppTheme.NoActionBar"
             android:label="@string/title_activity_login"/>
+
         <activity
             android:name=".activities.ProfileActivity"
             android:label="@string/title_activity_profile"
             android:theme="@style/AppTheme.NoActionBar" />
+
+        <activity
+            android:name=".activities.AboutActivity"
+            android:label="@string/title_activity_about"
+            android:theme="@style/AppTheme.NoActionBar" />
+
         <activity
             android:name=".activities.UserListActivity"
             android:label="@string/title_activity_user_list"

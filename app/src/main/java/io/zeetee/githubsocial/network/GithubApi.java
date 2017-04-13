@@ -11,10 +11,13 @@ import io.zeetee.githubsocial.models.GithubRepoReadme;
 import io.zeetee.githubsocial.models.GithubSearchResult;
 import io.zeetee.githubsocial.models.GithubUser;
 import io.zeetee.githubsocial.models.GithubUserDetails;
+import retrofit2.Response;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 import retrofit2.http.Url;
@@ -81,6 +84,13 @@ public interface GithubApi {
     @GET("/orgs/{org}/members")
     Observable<List<GithubUser>> orgMembers(@Header("Authorization") String token, @Path("org") String org, @Query("page") int page, @Query("per_page") int perPage);
 
+
+    //Actions
+    @PUT("/user/following/{username}")
+    Observable<Response<Void>> followUser(@Header("Authorization") String token, @Path("username") String userName);
+
+    @DELETE("/user/following/{username}")
+    Observable<Response<Void>> unFollowUser(@Header("Authorization") String token, @Path("username") String userName);
 
     // Following generic method won't work
     //https://github.com/square/retrofit/issues/2012

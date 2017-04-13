@@ -3,11 +3,10 @@ package io.zeetee.githubsocial.activities;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
+import android.support.design.widget.Snackbar;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
-import android.text.style.ClickableSpan;
 import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.View;
@@ -16,17 +15,25 @@ import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
 
+import java.util.concurrent.TimeUnit;
+
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.PublishSubject;
 import io.zeetee.githubsocial.R;
+import io.zeetee.githubsocial.bus.RxEvents;
 import io.zeetee.githubsocial.models.GithubUserDetails;
 import io.zeetee.githubsocial.network.RestApi;
+import io.zeetee.githubsocial.utils.StarState;
 import io.zeetee.githubsocial.utils.ColorDrawableHelper;
 import io.zeetee.githubsocial.utils.GSConstants;
-import io.zeetee.githubsocial.utils.LinkSpan;
 import io.zeetee.githubsocial.utils.UserManager;
+import io.zeetee.githubsocial.utils.UserProfileManager;
+import io.zeetee.githubsocial.utils.Utils;
+import retrofit2.Response;
 
 public class ProfileActivity extends AbstractPushActivity {
 
@@ -40,8 +47,7 @@ public class ProfileActivity extends AbstractPushActivity {
     private TextView mBio;
 
     private TextView mBlog;
-
-
+    
     private Button mRepos;
     private Button mGists;
     private Button mFollowers;
@@ -56,7 +62,10 @@ public class ProfileActivity extends AbstractPushActivity {
     private Button mFollowButton;
     private Button mUnFollowButton;
 
-    boolean isFollowed = false;
+    private StarState followState = new StarState();
+
+    private PublishSubject<StarState> subject = PublishSubject.create();
+    private Disposable followOperation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -136,32 +145,83 @@ public class ProfileActivity extends AbstractPushActivity {
             }
         });
 
-        mFollowButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                followUnFollow();
-            }
-        });
 
-        mUnFollowButton.setOnClickListener(new View.OnClickListener() {
+        mFollowButton.setOnClickListener(followClickListener);
+        mUnFollowButton.setOnClickListener(followClickListener);
+
+        subject.debounce(1000L, TimeUnit.MILLISECONDS).subscribe(new Consumer<StarState>() {
             @Override
-            public void onClick(View v) {
-                followUnFollow();
+            public void accept(StarState toggleState) throws Exception {
+                Log.d("GTGT","Debounce called: " + toggleState.toString());
+                if(toggleState.currentState == toggleState.originalState) return; // Do nothing.
+                doFollowUnfollowUserWork();
             }
         });
+        mFollowButton.setVisibility(View.GONE);
+        mUnFollowButton.setVisibility(View.GONE);
     }
 
-    private void followUnFollow(){
-        isFollowed = !isFollowed;
-        if(isFollowed){
+
+    private void initFollowButton(){
+        if(UserManager.getSharedInstance().isMe(userName) || userDetails == null || userDetails.type == null || !userDetails.type.equalsIgnoreCase(GSConstants.UserType.USER)){
+            mFollowButton.setVisibility(View.GONE);
+            mUnFollowButton.setVisibility(View.GONE);
+        }else{
+            if(UserProfileManager.getSharedInstance().isFollowing(userName)){
+                followState.currentState = true;
+                followState.originalState = true;
+                mFollowButton.setVisibility(View.GONE);
+                mUnFollowButton.setVisibility(View.VISIBLE);
+            }else{
+                followState.currentState = false;
+                followState.originalState = false;
+                mFollowButton.setVisibility(View.VISIBLE);
+                mUnFollowButton.setVisibility(View.GONE);
+            }
+        }
+    }
+
+
+    private View.OnClickListener followClickListener = new View.OnClickListener(){
+        @Override
+        public void onClick(View v) {
+            followUnFollowClicked();
+        }
+    };
+
+    private void followUnFollowClicked(){
+        if(!UserManager.getSharedInstance().isLoggedIn()){
+            showLoginPrompt("Please login to follow user");
+            return;
+        }
+
+        followState.currentState = !followState.currentState;
+
+        if(followState.currentState){
+            //'ME' is following the 'UserName'
             mFollowButton.setVisibility(View.GONE);
             mUnFollowButton.setVisibility(View.VISIBLE);
         }else{
             mFollowButton.setVisibility(View.VISIBLE);
             mUnFollowButton.setVisibility(View.GONE);
         }
+        subject.onNext(followState);
     }
 
+
+    Consumer<Object> busEventConsumer = new Consumer<Object>() {
+        @Override
+        public void accept(Object o) throws Exception {
+            if(o instanceof RxEvents.UserInfoLoadedEvent || o instanceof RxEvents.UserFollowedEvent || o instanceof RxEvents.UserUnFollowedEvent){
+                initFollowButton();
+            }
+        }
+    };
+
+    @Override
+    public Consumer<Object> getRxBusConsumer() {
+        return busEventConsumer;
+    }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -169,7 +229,6 @@ public class ProfileActivity extends AbstractPushActivity {
         outState.putString(GSConstants.USER_NAME, userName);
         super.onSaveInstanceState(outState);
     }
-
 
     private void fetchUserDetails(String userName){
         if(TextUtils.isEmpty(userName)) {
@@ -209,7 +268,7 @@ public class ProfileActivity extends AbstractPushActivity {
                         ProfileActivity.this.userDetails = userDetails;
                         initUI();
                     }
-                }, throwableConsumer);
+                }, fullScreenErrorConsumer);
     }
 
     private Observable<GithubUserDetails> getApiObservable(){
@@ -232,7 +291,7 @@ public class ProfileActivity extends AbstractPushActivity {
         mBlog.setText(userDetails.blog);
         showFollowingFollowersCount();
         showGithubStats();
-
+        initFollowButton();
     }
 
     private void showFollowingFollowersCount(){
@@ -267,6 +326,52 @@ public class ProfileActivity extends AbstractPushActivity {
         stringBuilder.setSpan(new StyleSpan(Typeface.BOLD),start,end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         stringBuilder.append("\n").append("Gists");
         mGists.setText(stringBuilder);
+    }
+
+    private void doFollowUnfollowUserWork(){
+        if(followState.currentState == followState.originalState) return;
+
+        //Cancel any previous server operation
+        if(followOperation != null && !followOperation.isDisposed()){
+            followOperation.dispose();
+        }
+
+        Observable<Response<Void>> observable;
+        final boolean followCall = followState.currentState;
+        if(followCall){
+            //Follow the user
+            observable = RestApi.followUser(userDetails);
+        }else{
+            //UnFollow the user
+            observable = RestApi.unFollowUser(userDetails);
+        }
+        followState.originalState = followState.currentState; // Sync the state
+        followOperation = observable
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new Consumer<Object>() {
+                            @Override
+                            public void accept(Object o) throws Exception {
+                            }
+                        }, new Consumer<Throwable>() {
+                            @Override
+                            public void accept(Throwable throwable) throws Exception {
+                                String msg = "Error :" + Utils.getErrorMessage(throwable);
+                                if(followCall){
+                                    //Error rever back to normal
+                                    UserProfileManager.getSharedInstance().userUnFollowed(userDetails);
+                                }else{
+                                    UserProfileManager.getSharedInstance().userFollowed(userDetails);
+                                }
+                                showmessage(msg);
+                            }
+                        });
+
+    }
+
+
+    private void showmessage(String msg){
+        Snackbar.make(mProfileContainer,msg,Snackbar.LENGTH_LONG).show();
     }
 
 

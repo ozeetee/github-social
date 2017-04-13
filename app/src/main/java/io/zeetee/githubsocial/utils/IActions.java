@@ -1,5 +1,9 @@
 package io.zeetee.githubsocial.utils;
 
+import android.support.annotation.NonNull;
+
+import io.zeetee.githubsocial.models.GithubUser;
+
 /**
  * By GT.
  */
@@ -11,4 +15,6 @@ public interface IActions {
     void showStarredRepos();
     void showRepoDetails(String repoName, String repoOwner);
     void showLoginScreen();
+    void showLoginPrompt(String s);
+    void followUnFollowClicked(@NonNull GithubUser githubUser);
 }

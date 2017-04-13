@@ -3,7 +3,7 @@ package io.zeetee.githubsocial.utils;
 import android.text.TextUtils;
 import android.util.Log;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -38,6 +38,14 @@ public class UserProfileManager {
             }
         }
         return sharedInstance;
+    }
+
+
+    public void checkFetchUserInfo(){
+        if(!UserManager.getSharedInstance().isLoggedIn()) return;
+        if(userDetails == null) fetchProfileSilently();
+        if(followingMap == null) fetchFollowingSilently();
+        if(starredRepoMap == null) fetchStarredRepoSilently();
     }
 
     public void fetchUserInformationSilently(){
@@ -108,7 +116,7 @@ public class UserProfileManager {
     }
 
     public synchronized void setFollowing(List<GithubUser> following) {
-        followingMap = new HashMap<>();
+        followingMap = new LinkedHashMap<>();
         if(following != null){
             for (GithubUser user : following) {
                 if(user == null || TextUtils.isEmpty(user.login)) continue;
@@ -119,7 +127,7 @@ public class UserProfileManager {
     }
 
     public synchronized void setStarredRepo(List<GithubRepo> starredRepo) {
-        starredRepoMap = new HashMap<>();
+        starredRepoMap = new LinkedHashMap<>();
         if(starredRepo != null){
             for (GithubRepo repo : starredRepo) {
                 if(repo == null || TextUtils.isEmpty(repo.full_name)) continue;
@@ -147,4 +155,19 @@ public class UserProfileManager {
     public boolean isStarred(String repoFullName){
         return repoFullName != null && starredRepoMap != null && starredRepoMap.get(repoFullName) != null;
     }
+
+    public void userFollowed(GithubUser githubUser) {
+        if(githubUser == null || TextUtils.isEmpty(githubUser.login)) return;
+        followingMap.put(githubUser.login, githubUser);
+        RxEventBus.getInstance().post(new RxEvents.UserFollowedEvent(githubUser));
+    }
+
+    public void userUnFollowed(GithubUser githubUser) {
+        if(githubUser == null || TextUtils.isEmpty(githubUser.login)) return;
+        followingMap.remove(githubUser.login);
+        RxEventBus.getInstance().post(new RxEvents.UserUnFollowedEvent(githubUser));
+    }
+
+
+
 }

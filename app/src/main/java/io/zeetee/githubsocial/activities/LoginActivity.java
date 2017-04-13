@@ -174,7 +174,7 @@ public class LoginActivity extends AbstractPushActivity  {
     private void showLoginError(Throwable throwable){
         showScreenContent();
         int code = Utils.getHttpStatusCode(throwable);
-        String serverMessage = Utils.getServerErrorMessage(throwable);
+        String serverMessage = Utils.getErrorMessage(throwable);
         Snackbar.make(mLoginFormView,serverMessage,Snackbar.LENGTH_LONG).show();
     }
 
@@ -196,6 +196,11 @@ public class LoginActivity extends AbstractPushActivity  {
     @Override
     public void showContent() {
         mLoginFormView.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public Consumer<Object> getRxBusConsumer() {
+        return null;
     }
 }
 

@@ -27,8 +27,8 @@ public class GithubUser extends GithubItem implements Parcelable {
     public boolean site_admin;
 
     protected GithubUser(Parcel in) {
+        super(in);
         login = in.readString();
-        id = in.readLong();
         avatar_url = in.readString();
         gravatar_id = in.readString();
         url = in.readString();
@@ -46,27 +46,10 @@ public class GithubUser extends GithubItem implements Parcelable {
         site_admin = in.readByte() != 0;
     }
 
-    public static final Creator<GithubUser> CREATOR = new Creator<GithubUser>() {
-        @Override
-        public GithubUser createFromParcel(Parcel in) {
-            return new GithubUser(in);
-        }
-
-        @Override
-        public GithubUser[] newArray(int size) {
-            return new GithubUser[size];
-        }
-    };
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        super.writeToParcel(dest, flags);
         dest.writeString(login);
-        dest.writeLong(id);
         dest.writeString(avatar_url);
         dest.writeString(gravatar_id);
         dest.writeString(url);
@@ -82,5 +65,45 @@ public class GithubUser extends GithubItem implements Parcelable {
         dest.writeString(received_events_url);
         dest.writeString(type);
         dest.writeByte((byte) (site_admin ? 1 : 0));
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<GithubUser> CREATOR = new Creator<GithubUser>() {
+        @Override
+        public GithubUser createFromParcel(Parcel in) {
+            return new GithubUser(in);
+        }
+
+        @Override
+        public GithubUser[] newArray(int size) {
+            return new GithubUser[size];
+        }
+    };
+
+
+    @Override
+    public String toString() {
+        return "GithubUser{" +
+                "login='" + login + '\'' +
+                ", avatar_url='" + avatar_url + '\'' +
+                ", gravatar_id='" + gravatar_id + '\'' +
+                ", url='" + url + '\'' +
+                ", html_url='" + html_url + '\'' +
+                ", followers_url='" + followers_url + '\'' +
+                ", following_url='" + following_url + '\'' +
+                ", gists_url='" + gists_url + '\'' +
+                ", starred_url='" + starred_url + '\'' +
+                ", subscriptions_url='" + subscriptions_url + '\'' +
+                ", organizations_url='" + organizations_url + '\'' +
+                ", repos_url='" + repos_url + '\'' +
+                ", events_url='" + events_url + '\'' +
+                ", received_events_url='" + received_events_url + '\'' +
+                ", type='" + type + '\'' +
+                ", site_admin=" + site_admin +
+                "} " + super.toString();
     }
 }

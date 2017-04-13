@@ -40,7 +40,7 @@ public interface GSConstants {
 
     interface UserType{
         String ORG = "Organization";
-        String USER = "AppUser";
+        String USER = "User";
     }
 
 }

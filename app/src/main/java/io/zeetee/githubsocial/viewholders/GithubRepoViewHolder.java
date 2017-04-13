@@ -18,7 +18,7 @@ import io.zeetee.githubsocial.utils.IActions;
  * By GT.
  */
 
-public class RepoCardViewHolder extends GithubItemViewHolder {
+public class GithubRepoViewHolder extends GithubItemViewHolder {
 
     private final TextView mTitle;
     private final TextView mDescription;
@@ -32,7 +32,7 @@ public class RepoCardViewHolder extends GithubItemViewHolder {
     private final TextView mUserName;
     private final SimpleDraweeView mUserImage;
 
-    public RepoCardViewHolder(View itemView, final IActions iActions) {
+    public GithubRepoViewHolder(View itemView, final IActions iActions) {
         super(itemView);
 
         mUserContainer = itemView.findViewById(R.id.user_container);

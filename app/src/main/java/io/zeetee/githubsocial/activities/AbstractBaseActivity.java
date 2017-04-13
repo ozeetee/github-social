@@ -1,7 +1,12 @@
 package io.zeetee.githubsocial.activities;
 
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.annotation.LayoutRes;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -9,18 +14,26 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import java.net.UnknownHostException;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.zeetee.githubsocial.R;
+import io.zeetee.githubsocial.bus.RxEventBus;
+import io.zeetee.githubsocial.bus.RxEvents;
+import io.zeetee.githubsocial.models.GithubUser;
+import io.zeetee.githubsocial.utils.ActionsManager;
 import io.zeetee.githubsocial.utils.GSConstants;
 import io.zeetee.githubsocial.utils.IActions;
+import io.zeetee.githubsocial.utils.StarState;
+import io.zeetee.githubsocial.utils.UserProfileManager;
 import io.zeetee.githubsocial.utils.Utils;
 
 /**
  * By GT.
+ *
  */
-
 public abstract class AbstractBaseActivity extends AppCompatActivity implements IActions{
 
     private static final int REQUEST_CODE_LOGIN = 100;
@@ -31,6 +44,9 @@ public abstract class AbstractBaseActivity extends AppCompatActivity implements 
     private TextView mErrorTitle;
     private TextView mErrorMessage;
     protected Button mErrorResolveButton;
+    private AlertDialog loginDialog;
+    private Disposable rxBusDisposable;
+
 
     @Override
     public void setContentView(@LayoutRes int layoutResID) {
@@ -96,7 +112,6 @@ public abstract class AbstractBaseActivity extends AppCompatActivity implements 
     protected Consumer<Throwable> fullScreenErrorConsumer = new Consumer<Throwable>() {
         @Override
         public void accept(Throwable throwable) throws Exception {
-            Log.e("GTGT", "Error while executing network operation",throwable);
             showFullScreenError(throwable);
         }
     };
@@ -134,16 +149,7 @@ public abstract class AbstractBaseActivity extends AppCompatActivity implements 
     }
 
     protected void showFullScreenError(Throwable throwable){
-        if(throwable instanceof UnknownHostException){
-            //Usually due to not able to connect to internet.
-            mErrorTitle.setText(R.string.unable_to_connect);
-            mErrorMessage.setText(R.string.check_internet_connection);
-            return;
-        }
-
-        int code = Utils.getHttpStatusCode(throwable);
-        String message = Utils.getServerErrorMessage(throwable);
-        showFullScreenError("Server Error" + ": " + String.valueOf(code),message);
+        showFullScreenError(Utils.getErrorTitle(throwable),Utils.getErrorMessage(throwable));
     }
 
     @Override
@@ -155,4 +161,62 @@ public abstract class AbstractBaseActivity extends AppCompatActivity implements 
     public abstract void hideContent();
 
     public abstract void showContent();
+
+    public abstract Consumer<Object> getRxBusConsumer();
+
+
+    @Override
+    public void showLoginPrompt(String s){
+        if(loginDialog == null){
+            loginDialog =
+            new AlertDialog.Builder(this)
+                    .setMessage(R.string.login_message)
+                    .setTitle(R.string.login_title)
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // User clicked OK button
+                            showLoginScreen();
+                        }
+                    })
+                    .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.dismiss();
+                        }
+                    }).create();
+        }
+        if(s!=null) loginDialog.setMessage(s);
+        loginDialog.show();
+    }
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        subscribeToEventBus();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unsubscribeToEventBus();
+    }
+
+    private void subscribeToEventBus(){
+        Consumer<Object> consumer = getRxBusConsumer();
+        if(consumer == null) return;
+        rxBusDisposable = RxEventBus.getInstance().getEventBus().subscribe(getRxBusConsumer());
+    }
+
+    private void unsubscribeToEventBus(){
+        if(rxBusDisposable != null && !rxBusDisposable.isDisposed()){
+            rxBusDisposable.dispose();
+        }
+    }
+
+    @Override
+    public void followUnFollowClicked(@NonNull GithubUser githubUser){
+        ActionsManager.getSharedInstance().followUnFollowUser(githubUser);
+    }
+
+
+
 }

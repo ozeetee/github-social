@@ -5,17 +5,19 @@ import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 
-import com.google.gson.Gson;
-
 import java.io.UnsupportedEncodingException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.zeetee.githubsocial.GSApp;
+import io.zeetee.githubsocial.R;
 import io.zeetee.githubsocial.models.ErrorResponse;
 import io.zeetee.githubsocial.models.GithubItem;
+import io.zeetee.githubsocial.models.GithubRepo;
 import io.zeetee.githubsocial.models.GithubSearchResult;
+import io.zeetee.githubsocial.models.GithubUser;
 import io.zeetee.githubsocial.models.GithubUserDetails;
-import retrofit2.Response;
 
 /**
  * By GT.
@@ -96,8 +98,24 @@ public class Utils {
     }
 
 
-    public static String getServerErrorMessage(Throwable throwable) {
-        String message = null;
+    public static String getErrorTitle(Throwable throwable){
+
+        if(throwable instanceof UnknownHostException){
+            //Usually due to not able to connect to internet.
+            return GSApp.getCurrentInstance().getString(R.string.unable_to_connect);
+        }
+
+        int code = Utils.getHttpStatusCode(throwable);
+        return "Error" + ": " + String.valueOf(code);
+    }
+
+    public static String getErrorMessage(Throwable throwable) {
+        if(throwable instanceof UnknownHostException){
+            //Usually due to not able to connect to internet.
+            return GSApp.getCurrentInstance().getString(R.string.check_internet_connection);
+        }
+
+        String message = throwable == null ? null : throwable.getMessage();
 
         if(throwable instanceof retrofit2.adapter.rxjava2.HttpException){
             retrofit2.adapter.rxjava2.HttpException httpException = (retrofit2.adapter.rxjava2.HttpException) throwable;
@@ -112,18 +130,35 @@ public class Utils {
             }
 
         }
-
-//        if(throwable instanceof retrofit2.HttpException){
-//            retrofit2.HttpException httpException = (retrofit2.HttpException) throwable;
-//            message = httpException.message();
-//            try {
-//                String sJson = httpException.response().errorBody().string();
-//                ErrorResponse er = GsonHelper.getAppGson().fromJson(sJson, ErrorResponse.class);
-//                message = er.message;
-//            }catch (Exception e){
-//                //Do Nothing
-//            }
-//        }
         return message;
+    }
+
+    public static boolean isUser(GithubUser githubUser) {
+        return githubUser != null && GSConstants.UserType.USER.equalsIgnoreCase(githubUser.type);
+    }
+
+    public static void fillInStarState(List<? extends GithubItem> githubItems) {
+        if(githubItems == null) return;
+        for (GithubItem item : githubItems){
+            if(item == null) continue;
+            item.starState = new StarState();
+            if(item instanceof GithubUser){
+                GithubUser githubUser = (GithubUser) item;
+                if(UserProfileManager.getSharedInstance().isFollowing(githubUser.login)){
+                    githubUser.starState.currentState = true;
+                    githubUser.starState.originalState = true;
+                }
+            }
+
+            if(item instanceof GithubRepo){
+                GithubRepo githubRepo = (GithubRepo) item;
+                if(UserProfileManager.getSharedInstance().isStarred(githubRepo.full_name)){
+                    githubRepo.starState.currentState = true;
+                    githubRepo.starState.originalState = true;
+                }
+
+            }
+
+        }
     }
 }

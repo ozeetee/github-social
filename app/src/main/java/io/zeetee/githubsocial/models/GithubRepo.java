@@ -8,7 +8,6 @@ import java.util.Date;
 /**
  * By GT.
  */
-
 public class GithubRepo extends GithubItem implements Parcelable{
 
 
@@ -24,7 +23,7 @@ public class GithubRepo extends GithubItem implements Parcelable{
     public long forks;
 
     protected GithubRepo(Parcel in) {
-        id = in.readLong();
+        super(in);
         name = in.readString();
         full_name = in.readString();
         description = in.readString();
@@ -32,9 +31,25 @@ public class GithubRepo extends GithubItem implements Parcelable{
         watchers_count = in.readLong();
         stargazers_count = in.readLong();
         owner = in.readParcelable(GithubUser.class.getClassLoader());
-        updated_at = (Date) in.readSerializable();
-        created_at = (Date) in.readSerializable();
         forks = in.readLong();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        super.writeToParcel(dest, flags);
+        dest.writeString(name);
+        dest.writeString(full_name);
+        dest.writeString(description);
+        dest.writeString(language);
+        dest.writeLong(watchers_count);
+        dest.writeLong(stargazers_count);
+        dest.writeParcelable(owner, flags);
+        dest.writeLong(forks);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
     public static final Creator<GithubRepo> CREATOR = new Creator<GithubRepo>() {
@@ -48,24 +63,4 @@ public class GithubRepo extends GithubItem implements Parcelable{
             return new GithubRepo[size];
         }
     };
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeLong(id);
-        dest.writeString(name);
-        dest.writeString(full_name);
-        dest.writeString(description);
-        dest.writeString(language);
-        dest.writeLong(watchers_count);
-        dest.writeLong(stargazers_count);
-        dest.writeParcelable(owner, flags);
-        dest.writeSerializable(updated_at);
-        dest.writeSerializable(created_at);
-        dest.writeLong(forks);
-    }
 }

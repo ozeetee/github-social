@@ -134,6 +134,8 @@ public class UserManager {
     }
 
     public boolean isMe(String userName){
+        if(userName == null) return false;
+        if(userName.equals(GSConstants.ME)) return true;
         return appUser != null && appUser.userName != null && appUser.userName.equalsIgnoreCase(userName);
     }
 

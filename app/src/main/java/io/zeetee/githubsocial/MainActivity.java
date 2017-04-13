@@ -1,14 +1,11 @@
 package io.zeetee.githubsocial;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,16 +17,12 @@ import com.facebook.drawee.view.SimpleDraweeView;
 import java.util.List;
 
 import io.reactivex.Observable;
-import io.reactivex.android.plugins.RxAndroidPlugins;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function3;
 import io.reactivex.schedulers.Schedulers;
-import io.zeetee.githubsocial.activities.AbstractBaseActivity;
-import io.zeetee.githubsocial.adapters.GithubItemAdapter;
-import io.zeetee.githubsocial.bus.RxEventBus;
+import io.zeetee.githubsocial.activities.AboutActivity;
+import io.zeetee.githubsocial.activities.AbstractListActivity;
 import io.zeetee.githubsocial.bus.RxEvents;
 import io.zeetee.githubsocial.models.GithubItem;
 import io.zeetee.githubsocial.models.GithubSearchResult;
@@ -39,22 +32,17 @@ import io.zeetee.githubsocial.utils.GSConstants;
 import io.zeetee.githubsocial.utils.UserManager;
 import io.zeetee.githubsocial.utils.UserProfileManager;
 import io.zeetee.githubsocial.utils.Utils;
-import io.zeetee.githubsocial.utils.VerticalSpaceItemDecoration;
 
-public class MainActivity extends AbstractBaseActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AbstractListActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-    private RecyclerView mRecyclerView;
-    private GithubItemAdapter githubItemAdapter;
     private SimpleDraweeView mLoggedInUserImage;
     private Button mLoginButton;
-    private Disposable subscription;
-
     private TextView mUserMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        isMorePage = false;
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, mToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -78,25 +66,6 @@ public class MainActivity extends AbstractBaseActivity implements NavigationView
 
         mLoggedInUserImage = (SimpleDraweeView) navigationView.getHeaderView(0).findViewById(R.id.logged_in_user_image);
 
-        mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false);
-        mRecyclerView.setLayoutManager(layoutManager);
-
-        int verticalSpacing = getResources().getDimensionPixelSize(R.dimen.item_vertical_spacing);
-        VerticalSpaceItemDecoration verticalSpaceItemDecoration = new VerticalSpaceItemDecoration(verticalSpacing);
-        mRecyclerView.addItemDecoration(verticalSpaceItemDecoration);
-
-        githubItemAdapter = new GithubItemAdapter(this);
-        mRecyclerView.setAdapter(githubItemAdapter);
-        fetchHomePage();
-        mErrorResolveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                fetchHomePage();
-            }
-        });
-        subscribeToEventBus();
-
         initLoginButton();
         initAvatar();
         mUserMessage.setOnClickListener(new View.OnClickListener() {
@@ -113,22 +82,9 @@ public class MainActivity extends AbstractBaseActivity implements NavigationView
             }
         });
 
-    }
+        showScreenLoading();
+        fetchList();
 
-    @Override
-    protected void onDestroy() {
-        unsubscribeToEventBus();
-        super.onDestroy();
-    }
-
-    private void subscribeToEventBus(){
-        subscription = RxEventBus.getInstance().getEventBus().subscribe(busEventConsumer);
-    }
-
-    private void unsubscribeToEventBus(){
-        if(subscription != null && !subscription.isDisposed()){
-            subscription.dispose();
-        }
     }
 
     private void initLoginButton(){
@@ -165,37 +121,37 @@ public class MainActivity extends AbstractBaseActivity implements NavigationView
             if(o instanceof RxEvents.UserInfoLoadedEvent){
                 initAvatar();
             }
+
+            if(o instanceof RxEvents.UserFollowedEvent){
+                onGithubItemChanged(((RxEvents.UserFollowedEvent)o).githubUser);
+            }
+
+            if(o instanceof RxEvents.UserUnFollowedEvent){
+                onGithubItemChanged(((RxEvents.UserUnFollowedEvent)o).githubUser);
+            }
         }
     };
 
-    private void fetchHomePage(){
-        showScreenLoading();
+    @Override
+    public Consumer<Object> getRxBusConsumer() {
+        return busEventConsumer;
+    }
+
+    @Override
+    protected void fetchList() {
+        isLoading = true;
         Observable
-                .zip(RestApi.fetchTopAndroidRepo(), RestApi.fetchMostFollowedAndroidDevs(), RestApi.fetchHomeProfile(), new Function3<GithubSearchResult, GithubSearchResult, GithubUserDetails, List<GithubItem>>() {
-                    @Override
-                    public List<GithubItem> apply(GithubSearchResult topAndroidRepo, GithubSearchResult mostFollowedAndroidDev, GithubUserDetails userDetails) throws Exception {
-                        return Utils.constructHomePage(topAndroidRepo,mostFollowedAndroidDev,userDetails);
-                    }
-                })
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<List<GithubItem>>() {
-                    @Override
-                    public void accept(List<GithubItem> gihubItems) throws Exception {
-                        githubItemAdapter.setGithubItems(gihubItems);
-                        initUI();
-                    }
-                }, fullScreenErrorConsumer);
+        .zip(RestApi.fetchTopAndroidRepo(), RestApi.fetchMostFollowedAndroidDevs(), RestApi.fetchHomeProfile(), new Function3<GithubSearchResult, GithubSearchResult, GithubUserDetails, List<GithubItem>>() {
+            @Override
+            public List<GithubItem> apply(GithubSearchResult topAndroidRepo, GithubSearchResult mostFollowedAndroidDev, GithubUserDetails userDetails) throws Exception {
+                return Utils.constructHomePage(topAndroidRepo,mostFollowedAndroidDev,userDetails);
+            }
+        })
+        .subscribeOn(Schedulers.newThread())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(listConsumer, getListErrorConsumer());
     }
 
-
-    private void initUI(){
-        showScreenContent();
-    }
-
-    private void checkCloseDrawer(){
-
-    }
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -253,22 +209,30 @@ public class MainActivity extends AbstractBaseActivity implements NavigationView
         return true;
     }
 
+    private void shareThisApp(){
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_SUBJECT, "Github Social");
+        intent.putExtra(Intent.EXTRA_TEXT, "Checkout this app from open source app from GT. https://github.com/ozeetee/github-social");
+        startActivity(Intent.createChooser(intent, "Share with"));
+    }
 
     private void shareApp(){
-        Snackbar.make(mRecyclerView, "Not yet implemented", Snackbar.LENGTH_SHORT).show();
+        shareThisApp();
     }
 
     private void showAboutScreen(){
-        Snackbar.make(mRecyclerView, "Not yet implemented", Snackbar.LENGTH_SHORT).show();
+        Intent intent = new Intent(this, AboutActivity.class);
+        startActivity(intent);
     }
 
     @Override
-    public void hideContent() {
-        mRecyclerView.setVisibility(View.GONE);
+    protected boolean isFormatCard() {
+        return true;
     }
 
     @Override
-    public void showContent() {
-        mRecyclerView.setVisibility(View.VISIBLE);
+    protected int getActivityLayout() {
+        return R.layout.activity_main;
     }
 }

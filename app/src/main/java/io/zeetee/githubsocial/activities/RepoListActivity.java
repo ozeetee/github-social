@@ -1,11 +1,6 @@
 package io.zeetee.githubsocial.activities;
 
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.View;
 
@@ -16,13 +11,11 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import io.zeetee.githubsocial.R;
-import io.zeetee.githubsocial.adapters.RepoListAdapter;
+import io.zeetee.githubsocial.bus.RxEvents;
 import io.zeetee.githubsocial.models.GithubRepo;
-import io.zeetee.githubsocial.models.GithubUser;
 import io.zeetee.githubsocial.network.RestApi;
 import io.zeetee.githubsocial.utils.GSConstants;
 import io.zeetee.githubsocial.utils.UserManager;
-import io.zeetee.githubsocial.utils.VerticalSpaceItemDecoration;
 
 /**
  * By GT.
@@ -30,34 +23,21 @@ import io.zeetee.githubsocial.utils.VerticalSpaceItemDecoration;
  */
 public class RepoListActivity extends AbstractListActivity {
 
-    private RecyclerView mRecyclerView;
-    private RepoListAdapter repoListAdapter;
     private String userName;
     private boolean starred;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_repo_list);
         if(getSupportActionBar() != null ) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         if(getIntent() != null){
             if(getIntent().getStringExtra(GSConstants.USER_NAME) != null) this.userName = getIntent().getStringExtra(GSConstants.USER_NAME);
             this.starred = getIntent().getBooleanExtra(GSConstants.STARRED,false);
         }
-
         setTitle(getScreenTitle());
-
-        mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        mRecyclerView.addOnScrollListener(onScrollListener);
-        layoutManager = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false);
-        mRecyclerView.setLayoutManager(layoutManager);
-        int verticalSpacing = getResources().getDimensionPixelSize(R.dimen.item_vertical_spacing);
-        VerticalSpaceItemDecoration verticalSpaceItemDecoration = new VerticalSpaceItemDecoration(verticalSpacing);
-        mRecyclerView.addItemDecoration(verticalSpaceItemDecoration);
-        repoListAdapter = new RepoListAdapter(this);
-        mRecyclerView.setAdapter(repoListAdapter);
         if(validateActivity()){
+            showScreenLoading();
             fetchList();
         }
     }
@@ -90,10 +70,10 @@ public class RepoListActivity extends AbstractListActivity {
         return true;
     }
 
+    @Override
     protected void fetchList(){
         isLoading = true;
         if(page == 1){
-            showScreenLoading();
             mErrorResolveButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -118,8 +98,18 @@ public class RepoListActivity extends AbstractListActivity {
         observable
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(consumer,fullScreenErrorConsumer);
+                .subscribe(listConsumer,getListErrorConsumer());
 
+    }
+
+    @Override
+    protected boolean isFormatCard() {
+        return true;
+    }
+
+    @Override
+    protected int getActivityLayout() {
+        return R.layout.activity_repo_list;
     }
 
     private Observable<List<GithubRepo>> getApiObservable(){
@@ -132,22 +122,6 @@ public class RepoListActivity extends AbstractListActivity {
         return RestApi.repos(userName,page,GSConstants.PER_PAGE);
     }
 
-
-    private Consumer<List<GithubRepo>> consumer = new Consumer<List<GithubRepo>>() {
-        @Override
-        public void accept(List<GithubRepo> githubRepos) throws Exception {
-            isLoading = false;
-            if(page == 1){
-                showScreenContent();
-            }
-            if(githubRepos == null || githubRepos.isEmpty()){
-                isMorePage = false;
-                return;
-            }
-            repoListAdapter.addRepos(githubRepos);
-            page++;
-        }
-    };
 
 
     private String getScreenTitle(){
@@ -162,12 +136,21 @@ public class RepoListActivity extends AbstractListActivity {
     }
 
     @Override
-    public void hideContent() {
-        mRecyclerView.setVisibility(View.GONE);
+    public Consumer<Object> getRxBusConsumer() {
+        return busEventConsumer;
     }
 
-    @Override
-    public void showContent() {
-        mRecyclerView.setVisibility(View.VISIBLE);
-    }
+    private Consumer<Object> busEventConsumer = new Consumer<Object>() {
+        @Override
+        public void accept(Object o) throws Exception {
+
+            if(o instanceof RxEvents.RepoStarredEvent){
+                onGithubItemChanged(((RxEvents.RepoStarredEvent)o).githubRepo);
+            }
+
+            if(o instanceof RxEvents.RepoUnStarredEvent){
+                onGithubItemChanged(((RxEvents.RepoUnStarredEvent)o).githubRepo);
+            }
+        }
+    };
 }

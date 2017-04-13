@@ -36,6 +36,7 @@ public class RxEventBus {
         return bus;
     }
 
+    // Check this method for thread safety
     public void post(final Object event) {
         //Always post the events to UI Thread.
         Handler uiHandler = new Handler(Looper.getMainLooper());

@@ -25,4 +25,7 @@
     <string name="title_activity_repo_list">RepoListActivity</string>
     <string name="unable_to_connect">No Internet Connection</string>
     <string name="check_internet_connection">Please check your internet connection\nand try again</string>
+    <string name="login_message">You need to login to Github.</string>
+    <string name="login_title">Please Login</string>
+    <string name="title_activity_about">About</string>
 </resources>

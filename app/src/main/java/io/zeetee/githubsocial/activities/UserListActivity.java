@@ -1,8 +1,6 @@
 package io.zeetee.githubsocial.activities;
 
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
 
@@ -13,26 +11,23 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import io.zeetee.githubsocial.R;
-import io.zeetee.githubsocial.adapters.UserListAdapter;
+import io.zeetee.githubsocial.bus.RxEvents;
+import io.zeetee.githubsocial.models.GithubItem;
 import io.zeetee.githubsocial.models.GithubUser;
 import io.zeetee.githubsocial.network.RestApi;
 import io.zeetee.githubsocial.utils.GSConstants;
 import io.zeetee.githubsocial.utils.UserManager;
+import io.zeetee.githubsocial.utils.UserProfileManager;
 
 public class UserListActivity extends AbstractListActivity {
 
-    private RecyclerView mRecyclerView;
-
-    private UserListAdapter userListAdapter;
     private String userName;
     private int listType;
     private String repoName;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_user_list);
 
         if(getSupportActionBar() != null ) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -41,15 +36,9 @@ public class UserListActivity extends AbstractListActivity {
             if(getIntent().getStringExtra(GSConstants.REPO_NAME) != null) this.repoName = getIntent().getStringExtra(GSConstants.REPO_NAME);
             this.listType = getIntent().getIntExtra(GSConstants.ListType.LIST_TYPE,0);
         }
-
-        mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        mRecyclerView.addOnScrollListener(onScrollListener);
-        layoutManager = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false);
-        mRecyclerView.setLayoutManager(layoutManager);
-        userListAdapter = new UserListAdapter(this);
-        mRecyclerView.setAdapter(userListAdapter);
         setListTitle();
         if(validateActivity()){
+            showScreenLoading();
             fetchList();
         }
     }
@@ -82,8 +71,8 @@ public class UserListActivity extends AbstractListActivity {
     }
 
     protected void fetchList(){
+        if(userName == null) return;
         isLoading = true;
-        if(page == 1) showScreenLoading();
         Observable<List<GithubUser>> observable = getApiObservable();
         if(observable == null){
             showFullScreenError("Internal Error","UserName is null");
@@ -96,11 +85,26 @@ public class UserListActivity extends AbstractListActivity {
             mErrorResolveButton.setText("Go Back");
             return;
         }
+        Consumer<List<? extends GithubItem>> consumer = (isMe() && listType == GSConstants.ListType.FOLLOWING) ? listConsumerWrapper : listConsumer;
+
         observable.subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(consumer,fullScreenErrorConsumer);
+                .subscribe(consumer, getListErrorConsumer());
     }
 
+
+    private Consumer<List<? extends GithubItem>> listConsumerWrapper = new Consumer<List<? extends GithubItem>>(){
+
+        @Override
+        public void accept(List<? extends GithubItem> githubItems) throws Exception {
+            listConsumer.accept(githubItems);
+            UserProfileManager.getSharedInstance().setFollowing((List<GithubUser>) githubItems);
+        }
+    };
+
+    private boolean isMe(){
+       return UserManager.getSharedInstance().isMe(userName);
+    }
 
     private Observable<List<GithubUser>> getApiObservable(){
         if(userName == null) return null;
@@ -146,33 +150,33 @@ public class UserListActivity extends AbstractListActivity {
         return "Users";
     }
 
-    private Consumer<List<GithubUser>> consumer = new Consumer<List<GithubUser>>() {
+    @Override
+    protected boolean isFormatCard() {
+        return false;
+    }
+
+    @Override
+    protected int getActivityLayout() {
+        return R.layout.activity_user_list;
+    }
+
+    @Override
+    public Consumer<Object> getRxBusConsumer() {
+        return busEventConsumer;
+    }
+
+
+    private Consumer<Object> busEventConsumer = new Consumer<Object>() {
         @Override
-        public void accept(List<GithubUser> githubUsers) throws Exception {
-            isLoading = false;
-            if(page == 1){
-                showScreenContent();
+        public void accept(Object o) throws Exception {
+
+            if(o instanceof RxEvents.UserFollowedEvent){
+                onGithubItemChanged(((RxEvents.UserFollowedEvent)o).githubUser);
             }
-            if(githubUsers == null || githubUsers.isEmpty()){
-                isMorePage = false;
-                return;
+
+            if(o instanceof RxEvents.UserUnFollowedEvent){
+                onGithubItemChanged(((RxEvents.UserUnFollowedEvent)o).githubUser);
             }
-            userListAdapter.addUsers(githubUsers);
-            page++;
         }
     };
-
-
-
-
-
-    @Override
-    public void hideContent() {
-        mRecyclerView.setVisibility(View.GONE);
-    }
-
-    @Override
-    public void showContent() {
-        mRecyclerView.setVisibility(View.VISIBLE);
-    }
 }

@@ -21,7 +21,9 @@ import io.zeetee.githubsocial.models.GithubUserDetails;
 import io.zeetee.githubsocial.utils.GSConstants;
 import io.zeetee.githubsocial.utils.GsonHelper;
 import io.zeetee.githubsocial.utils.UserManager;
+import io.zeetee.githubsocial.utils.UserProfileManager;
 import io.zeetee.githubsocial.utils.Utils;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -132,6 +134,36 @@ public class RestApi {
                     public ObservableSource<List<GithubRepo>> apply(String token) throws Exception {
                         token = normalizeToken(token);
                         return getClient().meRepos(token,page,perPage);
+                    }
+                }).doOnError(on401Error);
+    }
+
+    public static Observable<Response<Void>> followUser(GithubUser githubUser){
+        UserProfileManager.getSharedInstance().userFollowed(githubUser);
+        final String userName = githubUser.login;
+        return UserManager
+                .getSharedInstance()
+                .getTokenForRestCall()
+                .flatMap(new Function<String, ObservableSource<Response<Void>>>() {
+                    @Override
+                    public ObservableSource<Response<Void>> apply(String token) throws Exception {
+                        token = normalizeToken(token);
+                        return getClient().followUser(token,userName);
+                    }
+                }).doOnError(on401Error);
+    }
+
+    public static Observable<Response<Void>> unFollowUser(GithubUser githubUser){
+        UserProfileManager.getSharedInstance().userFollowed(githubUser);
+        final String userName = githubUser.login;
+        return UserManager
+                .getSharedInstance()
+                .getTokenForRestCall()
+                .flatMap(new Function<String, ObservableSource<Response<Void>>>() {
+                    @Override
+                    public ObservableSource<Response<Void>> apply(String token) throws Exception {
+                        token = normalizeToken(token);
+                        return getClient().unFollowUser(token,userName);
                     }
                 }).doOnError(on401Error);
     }

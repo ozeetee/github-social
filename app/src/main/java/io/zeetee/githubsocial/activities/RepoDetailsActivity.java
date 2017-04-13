@@ -1,14 +1,9 @@
 package io.zeetee.githubsocial.activities;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v7.widget.Toolbar;
 import android.text.SpannableStringBuilder;
-import android.text.Spanned;
 import android.text.TextUtils;
-import android.text.method.LinkMovementMethod;
-import android.text.style.ClickableSpan;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
@@ -29,7 +24,6 @@ import io.zeetee.githubsocial.models.GithubRepoDetails;
 import io.zeetee.githubsocial.models.GithubRepoReadme;
 import io.zeetee.githubsocial.network.RestApi;
 import io.zeetee.githubsocial.utils.GSConstants;
-import io.zeetee.githubsocial.utils.LinkSpan;
 
 /**
  * By GT.
@@ -101,7 +95,7 @@ public class RepoDetailsActivity extends AbstractPushActivity {
         }
 
 
-        mUserName = (TextView) findViewById(R.id.tv_user_name);
+        mUserName = (TextView) findViewById(R.id.user_name);
         mUserImage = (SimpleDraweeView) findViewById(R.id.user_image);
         mUserContainer = findViewById(R.id.user_container);
 
@@ -222,5 +216,10 @@ public class RepoDetailsActivity extends AbstractPushActivity {
     @Override
     public void showContent() {
         mMainContainer.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public Consumer<Object> getRxBusConsumer() {
+        return null;
     }
 }

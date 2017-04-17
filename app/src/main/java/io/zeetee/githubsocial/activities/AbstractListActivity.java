@@ -14,6 +14,7 @@ import java.util.List;
 import io.reactivex.functions.Consumer;
 import io.zeetee.githubsocial.R;
 import io.zeetee.githubsocial.adapters.GithubItemAdapter;
+import io.zeetee.githubsocial.bus.RxEvents;
 import io.zeetee.githubsocial.models.GithubItem;
 import io.zeetee.githubsocial.utils.GSConstants;
 import io.zeetee.githubsocial.utils.UserProfileManager;
@@ -163,5 +164,29 @@ public abstract class AbstractListActivity extends AbstractPushActivity{
         if(currentErrorConsumer == null) currentErrorConsumer = snackBarErrorConsumer;
         return currentErrorConsumer;
     }
+
+    protected Consumer<Object> generalBusEventConsumer = new Consumer<Object>() {
+
+        @Override
+        public void accept(Object o) throws Exception {
+
+            if(o instanceof RxEvents.RepoStarredEvent){
+                onGithubItemChanged(((RxEvents.RepoStarredEvent)o).githubRepo);
+            }
+
+            if(o instanceof RxEvents.RepoUnStarredEvent){
+                onGithubItemChanged(((RxEvents.RepoUnStarredEvent)o).githubRepo);
+            }
+
+            if(o instanceof RxEvents.UserFollowedEvent){
+                onGithubItemChanged(((RxEvents.UserFollowedEvent)o).githubUser);
+            }
+
+            if(o instanceof RxEvents.UserUnFollowedEvent){
+                onGithubItemChanged(((RxEvents.UserUnFollowedEvent)o).githubUser);
+            }
+        }
+    };
+
 
 }

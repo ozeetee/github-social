@@ -25,6 +25,7 @@ public class GithubUserViewHolder extends GithubItemViewHolder {
     private final Button mFollowButton;
     private final Button mUnFollowButton;
     private final IActions iActions;
+    private final View mContainer;
 
     public GithubUserViewHolder(View itemView, final IActions iActions) {
         super(itemView);
@@ -33,31 +34,32 @@ public class GithubUserViewHolder extends GithubItemViewHolder {
         mUserName = (TextView) itemView.findViewById(R.id.user_name);
         mFollowButton = (Button) itemView.findViewById(R.id.btn_follow);
         mUnFollowButton = (Button) itemView.findViewById(R.id.btn_un_follow);
+        mContainer = itemView.findViewById(R.id.user_container);
 
-        itemView.setOnClickListener(new View.OnClickListener() {
+
+        mContainer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 iActions.onUserClicked(((GithubUser)v.getTag()).login);
             }
         });
 
+        View.OnClickListener followClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                iActions.followUnFollowClicked((GithubUser) v.getTag());
+            }
+        };
         mFollowButton.setOnClickListener(followClickListener);
         mUnFollowButton.setOnClickListener(followClickListener);
     }
-
-    private View.OnClickListener followClickListener = new View.OnClickListener(){
-        @Override
-        public void onClick(View v) {
-            iActions.followUnFollowClicked((GithubUser)v.getTag());
-        }
-    };
 
     public void bind(GithubItem githubItem) {
         if(githubItem == null) return;
         GithubUser githubUser = (GithubUser) githubItem;
         mUserImage.setImageURI(githubUser.avatar_url);
         mUserName.setText(githubUser.login);
-        itemView.setTag(githubUser);
+        mContainer.setTag(githubUser);
         mFollowButton.setTag(githubUser);
         mUnFollowButton.setTag(githubUser);
 

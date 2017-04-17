@@ -113,6 +113,7 @@
             android:layout_height="1dp"/>
 
         <ImageButton
+            android:id="@+id/repo_star"
             style="@style/Widget.AppCompat.Button.Borderless"
             android:paddingLeft="0dp"
             android:paddingRight="0dp"

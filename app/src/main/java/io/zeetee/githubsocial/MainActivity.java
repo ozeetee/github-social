@@ -111,23 +111,20 @@ public class MainActivity extends AbstractListActivity implements NavigationView
         initLoginButton();
     }
 
+
+
     Consumer<Object> busEventConsumer = new Consumer<Object>() {
         @Override
         public void accept(Object o) throws Exception {
+
+            generalBusEventConsumer.accept(o);
+
             if(o instanceof RxEvents.UserLoggedInEvent){
                 initLoginButton();
             }
 
             if(o instanceof RxEvents.UserInfoLoadedEvent){
                 initAvatar();
-            }
-
-            if(o instanceof RxEvents.UserFollowedEvent){
-                onGithubItemChanged(((RxEvents.UserFollowedEvent)o).githubUser);
-            }
-
-            if(o instanceof RxEvents.UserUnFollowedEvent){
-                onGithubItemChanged(((RxEvents.UserUnFollowedEvent)o).githubUser);
             }
         }
     };

@@ -162,21 +162,9 @@ public class UserListActivity extends AbstractListActivity {
 
     @Override
     public Consumer<Object> getRxBusConsumer() {
-        return busEventConsumer;
+        return generalBusEventConsumer;
     }
 
 
-    private Consumer<Object> busEventConsumer = new Consumer<Object>() {
-        @Override
-        public void accept(Object o) throws Exception {
 
-            if(o instanceof RxEvents.UserFollowedEvent){
-                onGithubItemChanged(((RxEvents.UserFollowedEvent)o).githubUser);
-            }
-
-            if(o instanceof RxEvents.UserUnFollowedEvent){
-                onGithubItemChanged(((RxEvents.UserUnFollowedEvent)o).githubUser);
-            }
-        }
-    };
 }

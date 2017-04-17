@@ -137,20 +137,8 @@ public class RepoListActivity extends AbstractListActivity {
 
     @Override
     public Consumer<Object> getRxBusConsumer() {
-        return busEventConsumer;
+        return generalBusEventConsumer;
     }
 
-    private Consumer<Object> busEventConsumer = new Consumer<Object>() {
-        @Override
-        public void accept(Object o) throws Exception {
 
-            if(o instanceof RxEvents.RepoStarredEvent){
-                onGithubItemChanged(((RxEvents.RepoStarredEvent)o).githubRepo);
-            }
-
-            if(o instanceof RxEvents.RepoUnStarredEvent){
-                onGithubItemChanged(((RxEvents.RepoUnStarredEvent)o).githubRepo);
-            }
-        }
-    };
 }

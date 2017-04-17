@@ -182,6 +182,7 @@ public class UserProfileManager {
         final String repo = githubRepo.name;
         final String key = owner + "/" + repo;
         starredRepoMap.put(key, githubRepo);
+        RxEventBus.getInstance().post(new RxEvents.RepoStarredEvent(githubRepo));
     }
 
     public void repoUnStarred(GithubRepo githubRepo) {
@@ -189,5 +190,6 @@ public class UserProfileManager {
         final String repo = githubRepo.name;
         final String key = owner + "/" + repo;
         starredRepoMap.remove(key);
+        RxEventBus.getInstance().post(new RxEvents.RepoUnStarredEvent(githubRepo));
     }
 }

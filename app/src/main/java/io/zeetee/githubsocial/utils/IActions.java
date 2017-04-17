@@ -2,6 +2,7 @@ package io.zeetee.githubsocial.utils;
 
 import android.support.annotation.NonNull;
 
+import io.zeetee.githubsocial.models.GithubRepo;
 import io.zeetee.githubsocial.models.GithubUser;
 
 /**
@@ -17,4 +18,5 @@ public interface IActions {
     void showLoginScreen();
     void showLoginPrompt(String s);
     void followUnFollowClicked(@NonNull GithubUser githubUser);
+    void starUnstarClicked(GithubRepo repo);
 }

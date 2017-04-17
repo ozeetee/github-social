@@ -3,6 +3,7 @@ package io.zeetee.githubsocial.viewholders;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
@@ -13,6 +14,7 @@ import io.zeetee.githubsocial.models.GithubRepo;
 import io.zeetee.githubsocial.models.GithubUser;
 import io.zeetee.githubsocial.utils.ColorDrawableHelper;
 import io.zeetee.githubsocial.utils.IActions;
+import io.zeetee.githubsocial.utils.UserProfileManager;
 
 /**
  * By GT.
@@ -31,6 +33,7 @@ public class GithubRepoViewHolder extends GithubItemViewHolder {
     private final View mUserContainer;
     private final TextView mUserName;
     private final SimpleDraweeView mUserImage;
+    private final ImageButton mRepoStar;
 
     public GithubRepoViewHolder(View itemView, final IActions iActions) {
         super(itemView);
@@ -63,7 +66,14 @@ public class GithubRepoViewHolder extends GithubItemViewHolder {
                 iActions.onUserClicked(user.login);
             }
         });
-
+        mRepoStar = (ImageButton) itemView.findViewById(R.id.repo_star);
+        mRepoStar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                GithubRepo repo = (GithubRepo)v.getTag();
+                iActions.starUnstarClicked(repo);
+            }
+        });
     }
 
     public void bind(GithubItem githubItem) {
@@ -93,6 +103,12 @@ public class GithubRepoViewHolder extends GithubItemViewHolder {
                 mUserName.setText(repo.owner.login);
                 mUserImage.setImageURI(repo.owner.avatar_url);
                 mUserContainer.setTag(repo.owner);
+            }
+            mRepoStar.setTag(repo);
+            if(UserProfileManager.getSharedInstance().isStarred(repo)){
+                mRepoStar.setImageResource(R.drawable.ic_star_yellow);
+            }else{
+                mRepoStar.setImageResource(R.drawable.ic_star_gray);
             }
 
         }

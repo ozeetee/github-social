@@ -231,6 +231,16 @@ public abstract class AbstractBaseActivity extends AppCompatActivity implements 
     }
 
 
+    public void starUnstarClicked(GithubRepo githubRepo){
+        if(githubRepo == null) return;
+        if(!UserManager.getSharedInstance().isLoggedIn()){
+            showLoginPrompt("Please login to star repo");
+            return;
+        }
+        doStarUnStarWork(githubRepo);
+    }
+
+
     private void doStarUnStarWork(GithubItem item) {
         Observable<Response<Void>> observable;
         if (currentServerOperations.get(item.id) != null) {

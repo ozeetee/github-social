@@ -92,6 +92,13 @@ public interface GithubApi {
     @DELETE("/user/following/{username}")
     Observable<Response<Void>> unFollowUser(@Header("Authorization") String token, @Path("username") String userName);
 
+    @PUT("/user/starred/{owner}/{repo}")
+    Observable<Response<Void>> starRepo(@Header("Authorization") String token, @Path("owner") String owner, @Path("repo") String repo);
+
+    @DELETE("/user/starred/{owner}/{repo}")
+    Observable<Response<Void>> unStarRepo(@Header("Authorization") String token,@Path("owner") String owner, @Path("repo") String repo);
+
+
     // Following generic method won't work
     //https://github.com/square/retrofit/issues/2012
 //    @GET

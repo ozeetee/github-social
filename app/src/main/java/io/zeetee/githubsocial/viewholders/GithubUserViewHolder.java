@@ -65,7 +65,7 @@ public class GithubUserViewHolder extends GithubItemViewHolder {
             mFollowButton.setVisibility(View.GONE);
             mUnFollowButton.setVisibility(View.GONE);
         }else{
-            if(githubItem.starState.currentState){
+            if(UserProfileManager.getSharedInstance().isFollowing(githubUser)){
                 mFollowButton.setVisibility(View.GONE);
                 mUnFollowButton.setVisibility(View.VISIBLE);
             }else{

@@ -6,29 +6,37 @@ import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.util.LongSparseArray;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 import io.zeetee.githubsocial.R;
 import io.zeetee.githubsocial.bus.RxEventBus;
-import io.zeetee.githubsocial.bus.RxEvents;
+import io.zeetee.githubsocial.models.GithubItem;
+import io.zeetee.githubsocial.models.GithubRepo;
 import io.zeetee.githubsocial.models.GithubUser;
+import io.zeetee.githubsocial.network.RestApi;
 import io.zeetee.githubsocial.utils.ActionsManager;
 import io.zeetee.githubsocial.utils.GSConstants;
 import io.zeetee.githubsocial.utils.IActions;
-import io.zeetee.githubsocial.utils.StarState;
+import io.zeetee.githubsocial.utils.UserManager;
 import io.zeetee.githubsocial.utils.UserProfileManager;
 import io.zeetee.githubsocial.utils.Utils;
+import retrofit2.Response;
 
 /**
  * By GT.
@@ -46,7 +54,7 @@ public abstract class AbstractBaseActivity extends AppCompatActivity implements 
     protected Button mErrorResolveButton;
     private AlertDialog loginDialog;
     private Disposable rxBusDisposable;
-
+    private LongSparseArray<Disposable> currentServerOperations = new LongSparseArray<Disposable>(5);
 
     @Override
     public void setContentView(@LayoutRes int layoutResID) {
@@ -214,9 +222,69 @@ public abstract class AbstractBaseActivity extends AppCompatActivity implements 
 
     @Override
     public void followUnFollowClicked(@NonNull GithubUser githubUser){
-        ActionsManager.getSharedInstance().followUnFollowUser(githubUser);
+        if(!UserManager.getSharedInstance().isLoggedIn()){
+            showLoginPrompt("Please login to follow user");
+            return;
+        }
+        if(UserManager.getSharedInstance().isMe(githubUser.login) ) return;
+        doStarUnStarWork(githubUser);
     }
 
 
+    private void doStarUnStarWork(GithubItem item) {
+        Observable<Response<Void>> observable;
+        if (currentServerOperations.get(item.id) != null) {
+            Disposable disposable = currentServerOperations.get(item.id);
+            if (!disposable.isDisposed()) disposable.dispose();
+        }
+
+        if (item instanceof GithubUser) {
+            final GithubUser githubUser = (GithubUser) item;
+            boolean isFollowing = UserProfileManager.getSharedInstance().isFollowing(githubUser);
+
+            if (!isFollowing) {
+                //Follow the user
+                observable = RestApi.followUser(githubUser);
+            } else {
+                //UnFollow user
+                observable = RestApi.unFollowUser(githubUser);
+            }
+
+            Disposable operation = observable
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(Utils.emptyVoidConsumer, snackBarErrorConsumer);
+            currentServerOperations.put(item.id, operation);
+        }
+
+        if(item instanceof GithubRepo){
+            final GithubRepo githubRepo = (GithubRepo) item;
+            boolean isStarred = UserProfileManager.getSharedInstance().isStarred(githubRepo);
+            if (!isStarred) {
+                //Follow the user
+                observable = RestApi.starRepo(githubRepo);
+            } else {
+                //UnFollow user
+                observable = RestApi.unStarRepo(githubRepo);
+            }
+
+            Disposable operation = observable
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(Utils.emptyVoidConsumer, snackBarErrorConsumer);
+
+            currentServerOperations.put(item.id, operation);
+        }
+
+    }
+
+
+    private Consumer<Throwable> snackBarErrorConsumer = new Consumer<Throwable>() {
+        @Override
+        public void accept(Throwable throwable) throws Exception {
+            String message = Utils.getErrorMessage(throwable);
+            Snackbar.make(mProgressAndErrorContainer, message, Snackbar.LENGTH_LONG).show();
+        }
+    };
 
 }

@@ -22,8 +22,8 @@ import io.zeetee.githubsocial.utils.VerticalSpaceItemDecoration;
 
 /**
  * By GT.
+ *
  */
-
 public abstract class AbstractListActivity extends AbstractPushActivity{
 
     protected int page = 1;
@@ -112,7 +112,6 @@ public abstract class AbstractListActivity extends AbstractPushActivity{
         public void accept(List<? extends GithubItem> githubItems) throws Exception {
             isLoading = false;
             //We need to fill in that the item is starred or not
-            Utils.fillInStarState(githubItems);
             if(page == 1){
                 showScreenContent();
                 swipeContainer.setRefreshing(false);

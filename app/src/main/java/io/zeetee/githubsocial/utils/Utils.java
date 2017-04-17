@@ -10,6 +10,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.functions.Consumer;
 import io.zeetee.githubsocial.GSApp;
 import io.zeetee.githubsocial.R;
 import io.zeetee.githubsocial.models.ErrorResponse;
@@ -18,6 +19,7 @@ import io.zeetee.githubsocial.models.GithubRepo;
 import io.zeetee.githubsocial.models.GithubSearchResult;
 import io.zeetee.githubsocial.models.GithubUser;
 import io.zeetee.githubsocial.models.GithubUserDetails;
+import retrofit2.Response;
 
 /**
  * By GT.
@@ -137,28 +139,19 @@ public class Utils {
         return githubUser != null && GSConstants.UserType.USER.equalsIgnoreCase(githubUser.type);
     }
 
-    public static void fillInStarState(List<? extends GithubItem> githubItems) {
-        if(githubItems == null) return;
-        for (GithubItem item : githubItems){
-            if(item == null) continue;
-            item.starState = new StarState();
-            if(item instanceof GithubUser){
-                GithubUser githubUser = (GithubUser) item;
-                if(UserProfileManager.getSharedInstance().isFollowing(githubUser.login)){
-                    githubUser.starState.currentState = true;
-                    githubUser.starState.originalState = true;
-                }
-            }
-
-            if(item instanceof GithubRepo){
-                GithubRepo githubRepo = (GithubRepo) item;
-                if(UserProfileManager.getSharedInstance().isStarred(githubRepo.full_name)){
-                    githubRepo.starState.currentState = true;
-                    githubRepo.starState.originalState = true;
-                }
-
-            }
-
+    public static Consumer<Throwable> emptyThrowable = new Consumer<Throwable>() {
+        @Override
+        public void accept(Throwable throwable) throws Exception {
+            //Do nothing.
         }
-    }
+    };
+
+    public static Consumer<Response<Void>> emptyVoidConsumer = new Consumer<Response<Void>>() {
+
+        @Override
+        public void accept(Response<Void> aVoid) throws Exception {
+            //Do Nothing.
+        }
+    };
+
 }

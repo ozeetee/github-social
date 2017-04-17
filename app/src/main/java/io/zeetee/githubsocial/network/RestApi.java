@@ -138,7 +138,7 @@ public class RestApi {
                 }).doOnError(on401Error);
     }
 
-    public static Observable<Response<Void>> followUser(GithubUser githubUser){
+    public static Observable<Response<Void>> followUser(final GithubUser githubUser){
         UserProfileManager.getSharedInstance().userFollowed(githubUser);
         final String userName = githubUser.login;
         return UserManager
@@ -150,11 +150,16 @@ public class RestApi {
                         token = normalizeToken(token);
                         return getClient().followUser(token,userName);
                     }
-                }).doOnError(on401Error);
+                }).doOnError(on401Error).doOnError(new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        UserProfileManager.getSharedInstance().userUnFollowed(githubUser);
+                    }
+                });
     }
 
-    public static Observable<Response<Void>> unFollowUser(GithubUser githubUser){
-        UserProfileManager.getSharedInstance().userFollowed(githubUser);
+    public static Observable<Response<Void>> unFollowUser(final GithubUser githubUser){
+        UserProfileManager.getSharedInstance().userUnFollowed(githubUser);
         final String userName = githubUser.login;
         return UserManager
                 .getSharedInstance()
@@ -165,7 +170,59 @@ public class RestApi {
                         token = normalizeToken(token);
                         return getClient().unFollowUser(token,userName);
                     }
-                }).doOnError(on401Error);
+                }).doOnError(on401Error).doOnError(new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        UserProfileManager.getSharedInstance().userFollowed(githubUser);
+                    }
+                });
+    }
+
+
+    public static Observable<Response<Void>> starRepo(final GithubRepo githubRepo){
+        UserProfileManager.getSharedInstance().repoStarred(githubRepo);
+        final String owner = githubRepo.owner.login;
+        final String repo = githubRepo.name;
+        return UserManager
+                .getSharedInstance()
+                .getTokenForRestCall()
+                .flatMap(new Function<String, ObservableSource<Response<Void>>>() {
+                    @Override
+                    public ObservableSource<Response<Void>> apply(String token) throws Exception {
+                        token = normalizeToken(token);
+                        return getClient().starRepo(token,owner,repo);
+                    }
+                })
+                .doOnError(on401Error)
+                .doOnError(new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        UserProfileManager.getSharedInstance().repoUnStarred(githubRepo);
+                    }
+                });
+    }
+
+    public static Observable<Response<Void>> unStarRepo(GithubRepo githubRepo){
+        UserProfileManager.getSharedInstance().repoUnStarred(githubRepo);
+        final String owner = githubRepo.owner.login;
+        final String repo = githubRepo.name;
+        return UserManager
+                .getSharedInstance()
+                .getTokenForRestCall()
+                .flatMap(new Function<String, ObservableSource<Response<Void>>>() {
+                    @Override
+                    public ObservableSource<Response<Void>> apply(String token) throws Exception {
+                        token = normalizeToken(token);
+                        return getClient().unStarRepo(token,owner,repo);
+                    }
+                })
+                .doOnError(on401Error)
+                .doOnError(new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+
+                    }
+                });
     }
 
     private static Consumer<Throwable> on401Error = new Consumer<Throwable>() {

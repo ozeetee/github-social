@@ -147,9 +147,17 @@ public class UserProfileManager {
         setStarredRepo(null);
     }
 
+    public boolean isFollowing(GithubUser user){
+        return user !=null && isFollowing(user.login);
+    }
+
 
     public boolean isFollowing(String userName){
        return userName != null && followingMap != null && followingMap.get(userName) != null;
+    }
+
+    public boolean isStarred(GithubRepo repo){
+        return repo != null && isStarred(repo.full_name);
     }
 
     public boolean isStarred(String repoFullName){
@@ -169,5 +177,17 @@ public class UserProfileManager {
     }
 
 
+    public void repoStarred(GithubRepo githubRepo) {
+        final String owner = githubRepo.owner.login;
+        final String repo = githubRepo.name;
+        final String key = owner + "/" + repo;
+        starredRepoMap.put(key, githubRepo);
+    }
 
+    public void repoUnStarred(GithubRepo githubRepo) {
+        final String owner = githubRepo.owner.login;
+        final String repo = githubRepo.name;
+        final String key = owner + "/" + repo;
+        starredRepoMap.remove(key);
+    }
 }

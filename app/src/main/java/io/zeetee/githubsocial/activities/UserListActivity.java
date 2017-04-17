@@ -98,7 +98,7 @@ public class UserListActivity extends AbstractListActivity {
         @Override
         public void accept(List<? extends GithubItem> githubItems) throws Exception {
             listConsumer.accept(githubItems);
-            UserProfileManager.getSharedInstance().setFollowing((List<GithubUser>) githubItems);
+//            UserProfileManager.getSharedInstance().setFollowing((List<GithubUser>) githubItems);
         }
     };
 

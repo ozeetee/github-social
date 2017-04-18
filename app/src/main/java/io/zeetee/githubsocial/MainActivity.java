@@ -18,6 +18,7 @@ import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function3;
 import io.reactivex.schedulers.Schedulers;
@@ -137,16 +138,16 @@ public class MainActivity extends AbstractListActivity implements NavigationView
     @Override
     protected void fetchList() {
         isLoading = true;
-        Observable
-        .zip(RestApi.fetchTopAndroidRepo(), RestApi.fetchMostFollowedAndroidDevs(), RestApi.fetchHomeProfile(), new Function3<GithubSearchResult, GithubSearchResult, GithubUserDetails, List<GithubItem>>() {
-            @Override
-            public List<GithubItem> apply(GithubSearchResult topAndroidRepo, GithubSearchResult mostFollowedAndroidDev, GithubUserDetails userDetails) throws Exception {
-                return Utils.constructHomePage(topAndroidRepo,mostFollowedAndroidDev,userDetails);
-            }
-        })
-        .subscribeOn(Schedulers.newThread())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(listConsumer, getListErrorConsumer());
+        Disposable s = Observable
+                .zip(RestApi.fetchTopAndroidRepo(), RestApi.fetchMostFollowedAndroidDevs(), RestApi.fetchHomeProfile(), new Function3<GithubSearchResult, GithubSearchResult, GithubUserDetails, List<GithubItem>>() {
+                    @Override
+                    public List<GithubItem> apply(GithubSearchResult topAndroidRepo, GithubSearchResult mostFollowedAndroidDev, GithubUserDetails userDetails) throws Exception {
+                        return Utils.constructHomePage(topAndroidRepo, mostFollowedAndroidDev, userDetails);
+                    }
+                })
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(listConsumer, getListErrorConsumer());
     }
 
     @Override

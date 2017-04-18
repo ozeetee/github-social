@@ -116,13 +116,17 @@ public class UserProfileManager {
     }
 
     public synchronized void setFollowing(List<GithubUser> following) {
-        followingMap = new LinkedHashMap<>();
-        if(following != null){
-            for (GithubUser user : following) {
-                if(user == null || TextUtils.isEmpty(user.login)) continue;
-                followingMap.put(user.login, user);
-            }
+        if(following == null){
+            followingMap = null;
+            return;
         }
+
+        followingMap = new LinkedHashMap<>();
+        for (GithubUser user : following) {
+            if(user == null || TextUtils.isEmpty(user.login)) continue;
+            followingMap.put(user.login, user);
+        }
+
         RxEventBus.getInstance().post(new RxEvents.UserFollowingListLoadedEvent());
     }
 

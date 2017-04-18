@@ -18,9 +18,11 @@ import android.widget.TextView;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.WeakHashMap;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
@@ -53,8 +55,9 @@ public abstract class AbstractBaseActivity extends AppCompatActivity implements 
     private TextView mErrorMessage;
     protected Button mErrorResolveButton;
     private AlertDialog loginDialog;
-    private Disposable rxBusDisposable;
-    private LongSparseArray<Disposable> currentServerOperations = new LongSparseArray<Disposable>(5);
+    private Map<Long,Disposable> currentServerOperations = new WeakHashMap<>();
+    protected CompositeDisposable compositeDisposable = new CompositeDisposable();
+
 
     @Override
     public void setContentView(@LayoutRes int layoutResID) {
@@ -204,21 +207,17 @@ public abstract class AbstractBaseActivity extends AppCompatActivity implements 
 
     @Override
     protected void onDestroy() {
+        compositeDisposable.clear(); //To avoid memory leak with subscribe
         super.onDestroy();
-        unsubscribeToEventBus();
     }
 
     private void subscribeToEventBus(){
         Consumer<Object> consumer = getRxBusConsumer();
         if(consumer == null) return;
-        rxBusDisposable = RxEventBus.getInstance().getEventBus().subscribe(getRxBusConsumer());
+        Disposable rxBusDisposable; rxBusDisposable = RxEventBus.getInstance().getEventBus().subscribe(getRxBusConsumer());
+        compositeDisposable.add(rxBusDisposable);
     }
 
-    private void unsubscribeToEventBus(){
-        if(rxBusDisposable != null && !rxBusDisposable.isDisposed()){
-            rxBusDisposable.dispose();
-        }
-    }
 
     @Override
     public void followUnFollowClicked(@NonNull GithubUser githubUser){
@@ -265,6 +264,7 @@ public abstract class AbstractBaseActivity extends AppCompatActivity implements 
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(Utils.emptyVoidConsumer, snackBarErrorConsumer);
             currentServerOperations.put(item.id, operation);
+            compositeDisposable.add(operation);
         }
 
         if(item instanceof GithubRepo){
@@ -282,8 +282,8 @@ public abstract class AbstractBaseActivity extends AppCompatActivity implements 
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(Utils.emptyVoidConsumer, snackBarErrorConsumer);
-
             currentServerOperations.put(item.id, operation);
+            compositeDisposable.add(operation);
         }
 
     }

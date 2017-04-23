@@ -2,7 +2,6 @@ package io.zeetee.githubsocial.activities;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -56,7 +55,7 @@ public class SearchActivity extends AbstractListActivity{
 
         Disposable disposable = RxTextView
                 .textChanges(mSearch)
-                .debounce(500, TimeUnit.MILLISECONDS)
+                .debounce(800, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<CharSequence>() {
                     @Override
@@ -69,13 +68,16 @@ public class SearchActivity extends AbstractListActivity{
 
 
     private void doSearch(CharSequence charSequence){
+        String currentQuery = charSequence == null ? null : charSequence.toString().trim();
+
         //Search only for 2 or more
-        if(charSequence == null || charSequence.length() < 2){
+        if(currentQuery == null || currentQuery.length() < 2){
             isMorePage = false;
             githubItemAdapter.setGithubItems(null);
+            searchQuery = currentQuery;
             return;
         }
-        String currentQuery = charSequence.toString();
+
         if(currentQuery.equalsIgnoreCase(searchQuery)){
             //Do nothing
             return;
@@ -91,6 +93,10 @@ public class SearchActivity extends AbstractListActivity{
     @Override
     protected void fetchList() {
         super.fetchList();
+        if(searchQuery == null || searchQuery.length() < 2){
+            swipeContainer.setRefreshing(false);
+            return;
+        }
         if(page == 1){
             mErrorResolveButton.setOnClickListener(new View.OnClickListener() {
                 @Override

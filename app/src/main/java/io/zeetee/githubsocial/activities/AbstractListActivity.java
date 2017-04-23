@@ -33,7 +33,7 @@ public abstract class AbstractListActivity extends AbstractPushActivity{
     protected LinearLayoutManager layoutManager;
     protected RecyclerView mRecyclerView;
     protected GithubItemAdapter githubItemAdapter;
-    private SwipeRefreshLayout swipeContainer;
+    protected SwipeRefreshLayout swipeContainer;
     protected Consumer<Throwable> currentErrorConsumer;
     private View mEmptyMessage;
 

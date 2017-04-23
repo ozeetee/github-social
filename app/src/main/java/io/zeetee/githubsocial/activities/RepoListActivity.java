@@ -2,6 +2,7 @@ package io.zeetee.githubsocial.activities;
 
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Menu;
 import android.view.View;
 
 import java.util.List;
@@ -72,7 +73,7 @@ public class RepoListActivity extends AbstractListActivity {
 
     @Override
     protected void fetchList(){
-        isLoading = true;
+        super.fetchList();
         if(page == 1){
             mErrorResolveButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -140,5 +141,10 @@ public class RepoListActivity extends AbstractListActivity {
         return generalBusEventConsumer;
     }
 
-
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
 }

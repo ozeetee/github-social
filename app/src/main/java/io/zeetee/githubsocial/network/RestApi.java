@@ -236,6 +236,19 @@ public class RestApi {
     };
 
 
+    public static Observable<GithubSearchResult> searchRepos(final String query, final int page, final int perPage){
+        return UserManager
+                .getSharedInstance()
+                .getTokenForRestCall()
+                .flatMap(new Function<String, ObservableSource<GithubSearchResult>>() {
+                    @Override
+                    public ObservableSource<GithubSearchResult> apply(String token) throws Exception {
+                        token = normalizeToken(token);
+                        return getClient().searchRepos(token, query, page,perPage);
+                    }
+                });
+    }
+
     public static Observable<GithubSearchResult> fetchTopAndroidRepo(){
         return UserManager
                 .getSharedInstance()
@@ -314,6 +327,8 @@ public class RestApi {
                     }
                 });
     }
+
+
 
     public static Observable<List<GithubRepo>> repos(final String userName, final int page, final int perPage){
         return UserManager

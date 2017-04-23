@@ -7,4 +7,10 @@
         android:title="Star"
         android:id="@+id/action_repo_star"
         app:showAsAction="always" />
+
+    <item
+        android:icon="@drawable/ic_search"
+        android:id="@+id/action_search"
+        android:title="@string/action_search"
+        app:showAsAction="always" />
 </menu>

@@ -2,6 +2,7 @@ package io.zeetee.githubsocial.activities;
 
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Menu;
 import android.view.View;
 
 import java.util.List;
@@ -71,8 +72,8 @@ public class UserListActivity extends AbstractListActivity {
     }
 
     protected void fetchList(){
+        super.fetchList();
         if(userName == null) return;
-        isLoading = true;
         Observable<List<GithubUser>> observable = getApiObservable();
         if(observable == null){
             showFullScreenError("Internal Error","UserName is null");
@@ -166,5 +167,10 @@ public class UserListActivity extends AbstractListActivity {
     }
 
 
-
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
 }

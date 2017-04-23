@@ -215,7 +215,7 @@ public abstract class AbstractBaseActivity extends AppCompatActivity implements 
         Consumer<Object> consumer = getRxBusConsumer();
         if(consumer == null) return;
         Disposable rxBusDisposable; rxBusDisposable = RxEventBus.getInstance().getEventBus().subscribe(getRxBusConsumer());
-        compositeDisposable.add(rxBusDisposable);
+        compositeDisposable.add(rxBusDisposable); //So later on we can release the resource for avoiding any memory leaks
     }
 
 

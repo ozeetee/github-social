@@ -32,9 +32,10 @@ public abstract class AbstractListActivity extends AbstractPushActivity{
     protected boolean isLoading = false;
     protected LinearLayoutManager layoutManager;
     protected RecyclerView mRecyclerView;
-    private GithubItemAdapter githubItemAdapter;
+    protected GithubItemAdapter githubItemAdapter;
     private SwipeRefreshLayout swipeContainer;
     protected Consumer<Throwable> currentErrorConsumer;
+    private View mEmptyMessage;
 
     protected RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
         @Override
@@ -59,7 +60,7 @@ public abstract class AbstractListActivity extends AbstractPushActivity{
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(getActivityLayout());
-
+        mEmptyMessage = findViewById(R.id.empty_message);
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         layoutManager = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false);
         mRecyclerView.setLayoutManager(layoutManager);
@@ -99,9 +100,13 @@ public abstract class AbstractListActivity extends AbstractPushActivity{
             }
         });
         currentErrorConsumer = fullScreenErrorConsumer;
+        hideEmptyListMessage();
     }
 
-    protected abstract void fetchList();
+    protected void fetchList(){
+        isLoading = true;
+        hideEmptyListMessage();
+    }
 
     protected abstract boolean isFormatCard();
 
@@ -122,12 +127,24 @@ public abstract class AbstractListActivity extends AbstractPushActivity{
             }
             if(githubItems == null || githubItems.isEmpty()){
                 isMorePage = false;
+                if(page == 1){
+                    showEmptyListMessage();
+                }
                 return;
             }
 
             page++;
         }
     };
+
+    protected void showEmptyListMessage(){
+        if(mEmptyMessage != null) mEmptyMessage.setVisibility(View.VISIBLE);
+    }
+
+    protected void hideEmptyListMessage(){
+        if(mEmptyMessage != null) mEmptyMessage.setVisibility(View.GONE);
+    }
+
 
     @Override
     public void hideContent() {

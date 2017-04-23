@@ -29,7 +29,7 @@ public class GithubItemAdapter extends RecyclerView.Adapter<GithubItemViewHolder
     private static final int VIEW_TYPE_REPO_CARD = 2;
 
     private final IActions iUserActions;
-    private List<GithubItem> githubItems= new ArrayList<>();
+    private final List<GithubItem> githubItems= new ArrayList<>();
     private final boolean formatCards;
 
     public GithubItemAdapter(IActions iUserActions, boolean formatCards) {
@@ -70,14 +70,13 @@ public class GithubItemAdapter extends RecyclerView.Adapter<GithubItemViewHolder
     }
 
     public void setGithubItems(List<? extends GithubItem> githubItems){
-        this.githubItems = new ArrayList<>();
-        this.githubItems.addAll(githubItems);
+        this.githubItems.clear();
+        if(githubItems != null) this.githubItems.addAll(githubItems);
         notifyDataSetChanged();
     }
 
     public void addGithubItems(List<? extends GithubItem> githubItems){
         if(githubItems == null || githubItems.isEmpty()) return;
-        if(this.githubItems == null) this.githubItems = new ArrayList<>();
         int positionStart = this.githubItems.size();
         int itemCount = githubItems.size();
         this.githubItems.addAll(githubItems);
@@ -93,7 +92,7 @@ public class GithubItemAdapter extends RecyclerView.Adapter<GithubItemViewHolder
 
     // name can be userName or githubRepo full name
     public int itemPosition(GithubItem item){
-        if(githubItems == null || item == null) return -1;
+        if(item == null) return -1;
         for (int i = 0; i < githubItems.size(); i++) {
             if(githubItems.get(i) == null) continue;
             if(githubItems.get(i).id == item.id) return i;

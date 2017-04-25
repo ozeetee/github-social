@@ -1,5 +1,5 @@
 # github-social #
-Sample Android Application demonstrating various use cases of RxJava in a Social application. Integrated with Github rest api
+Sample Android Application demonstrating various use cases of RxJava in a Social application. Integrated with [Github Api](https://developer.github.com/v3/).
 
 
 ## Features of the app ##
@@ -17,6 +17,11 @@ Sample Android Application demonstrating various use cases of RxJava in a Social
     4. Star any repository
     5. Follow any user.
 8. A user can search a repository from Github. Search as you type.
+9. Overcome Github Api limitation :
+    * Github api don't mark which repository is starred by current logged in user in **Listing** as well as **details**
+    * Github api don't mark which other users is followed by currently logged in user in **Listing** as well as **details**
+    * A mechanism to parallel fetch **logged in user's** star repos and following list and store it locally and query it for showing **follow button** or **star button**.
+
 
 ### Home Feed ###
 

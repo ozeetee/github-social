@@ -103,6 +103,16 @@ public class UserManager {
         RxEventBus.getInstance().post(new RxEvents.UserLoggedInEvent(userName,password,token));
     }
 
+    public synchronized void saveUserToken(String token){
+        if(this.appUser == null) appUser = new AppUser();
+        appUser.token = token;
+        SharedPreferences sp = GSApp.getCurrentInstance().getSharedPreferences(PREFS_NAME,0);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putString(GSConstants.TOKEN, token);
+        editor.apply();
+    }
+
+
     public Observable<String> getTokenForRestCall(){
 
         //We have a token return it for rest call ... Sweet
@@ -114,7 +124,7 @@ public class UserManager {
             return Observable.just(""); //Can't pass null
         }
 
-        return RestApi.auth(appUser.userName, appUser.password).doOnError(on401Error);
+        return RestApi.auth(appUser.userName, appUser.password).doOnError(on401Error).doOnNext(saveUserToken);
     }
 
     private Consumer<Throwable> on401Error = new Consumer<Throwable>() {
@@ -127,6 +137,14 @@ public class UserManager {
             }
         }
     };
+
+    private Consumer<String> saveUserToken = new Consumer<String>() {
+        @Override
+        public void accept(String s) throws Exception {
+            saveUserToken(s);
+        }
+    };
+
 
 
     public String getUserName(){

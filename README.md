@@ -27,18 +27,35 @@ Sample Android Application demonstrating various use cases of RxJava in a Social
 
 ### RX used 
 1. Rate limiting number of search request when searching Github. [Debounce](http://rxmarbles.com/#debounce)
+2. RxBus using [RxRelay](https://github.com/JakeWharton/RxRelay)
+3. Serial api calls.
+4. Parallel api calls.
+5. Dependent serial parallel Async operations.
 
 ### Github Authentication ###
 
-* Login on Github using [Basic Authentication](https://developer.github.com/v3/auth/#basic-authentication) which respond back with OAuth token.
+* Login on Github using [Basic Authentication](https://developer.github.com/v3/auth/#basic-authentication) which responds back with OAuth token.
 * Use the token to fetch the following when app starts.
     1. User starred repo
     2. User Following
     3. User Followers.
-    
+* Use OAuth token to follow other users or to star Github repositories.
+
+
 ### Downloadable APK FILE 
 [Download from here](https://drive.google.com/file/d/0B1jzf-vV0CXPWUV0OTRNQ2dLVkk/view)
     
+
+### Library used ###
+* [RxJava](https://github.com/ReactiveX/RxJava) as RxAndroid depends on this
+* [RxAndroid](https://github.com/ReactiveX/RxAndroid)
+* [RxRelay](https://github.com/JakeWharton/RxRelay) for making RxBus
+* [RxBinding](https://github.com/JakeWharton/RxBinding) 
+* [Retrofit](https://github.com/square/retrofit) HTTP Client 
+* [Fresco](http://frescolib.org) as image library
+* [MarkdownView](https://github.com/tiagohm/MarkdownView) for showing Readme files
+* Google Support libraries, RecyclerView, Card View etc.
+
 
 ### Resources ###
 * [ReactiveX](http://reactivex.io)

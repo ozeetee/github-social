@@ -9,6 +9,7 @@ import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import io.zeetee.githubsocial.R;
@@ -96,10 +97,11 @@ public class RepoListActivity extends AbstractListActivity {
             mErrorResolveButton.setText("Go Back");
             return;
         }
-        observable
+        Disposable d = observable
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(listConsumer,getListErrorConsumer());
+        compositeDisposable.add(d);
 
     }
 

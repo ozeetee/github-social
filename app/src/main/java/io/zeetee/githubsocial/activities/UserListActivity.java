@@ -9,6 +9,7 @@ import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import io.zeetee.githubsocial.R;
@@ -88,9 +89,10 @@ public class UserListActivity extends AbstractListActivity {
         }
         Consumer<List<? extends GithubItem>> consumer = (isMe() && listType == GSConstants.ListType.FOLLOWING) ? listConsumerWrapper : listConsumer;
 
-        observable.subscribeOn(Schedulers.newThread())
+        Disposable d = observable.subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(consumer, getListErrorConsumer());
+        compositeDisposable.add(d);
     }
 
 

@@ -277,7 +277,7 @@ public class RepoDetailsActivity extends AbstractPushActivity {
                 invalidateOptionsMenu();
             }
 
-            if(o instanceof RxEvents.RepoStarredEvent){
+            if(o instanceof RxEvents.RepoUnStarredEvent){
                 invalidateOptionsMenu();
             }
 

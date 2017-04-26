@@ -56,7 +56,7 @@ public abstract class AbstractBaseActivity extends AppCompatActivity implements 
     protected Button mErrorResolveButton;
     private AlertDialog loginDialog;
     private Map<Long,Disposable> currentServerOperations = new WeakHashMap<>();
-    protected CompositeDisposable compositeDisposable = new CompositeDisposable();
+    protected final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
 
     @Override

@@ -69,4 +69,6 @@ public interface RxEvents {
     }
 
 
+    class UserLogoffEvent {
+    }
 }

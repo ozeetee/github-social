@@ -63,7 +63,6 @@ public class MainActivity extends AbstractListActivity implements NavigationView
             }
         });
 
-        initLoginButton();
         mUserMessage = (TextView) navigationView.getHeaderView(0).findViewById(R.id.logged_in_user_name);
 
         mLoggedInUserImage = (SimpleDraweeView) navigationView.getHeaderView(0).findViewById(R.id.logged_in_user_image);
@@ -121,8 +120,9 @@ public class MainActivity extends AbstractListActivity implements NavigationView
 
             generalBusEventConsumer.accept(o);
 
-            if(o instanceof RxEvents.UserLoggedInEvent){
+            if(o instanceof RxEvents.UserLoggedInEvent || o instanceof RxEvents.UserLogoffEvent){
                 initLoginButton();
+                githubItemAdapter.notifyDataSetChanged();
             }
 
             if(o instanceof RxEvents.UserInfoLoadedEvent){

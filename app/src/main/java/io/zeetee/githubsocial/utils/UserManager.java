@@ -87,6 +87,7 @@ public class UserManager {
     public void logOfUser(){
         saveUser(null);
         UserProfileManager.getSharedInstance().logOffUser();
+        RxEventBus.getInstance().post(new RxEvents.UserLogoffEvent());
     }
 
 
